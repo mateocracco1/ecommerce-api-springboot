@@ -15,7 +15,7 @@ public class User {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String username;
     @Column(unique = true, nullable = false)
     private String email;
 
@@ -33,9 +33,9 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String name, String email, String password, Role role, boolean enabled) {
+    public User(Long id, String username, String email, String password, Role role, boolean enabled) {
         this.id = id;
-        this.name = name;
+        this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
@@ -63,12 +63,12 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {

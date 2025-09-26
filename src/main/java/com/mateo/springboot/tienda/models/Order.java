@@ -16,7 +16,6 @@ public class Order {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id",nullable = false)
-    @Column(nullable = false)
     private User user;              // quién hizo el pedido
 
     private LocalDate date;         // fecha del pedido
@@ -24,20 +23,30 @@ public class Order {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal total;           // total del pedido
 
+    @Enumerated(EnumType.STRING) // <- Esto hace que se guarde como texto en la base de datos
+    private OrderStatus status;
+
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> details; // lista de productos en el pedido
-
 
     public Order() {
     }
 
-    public Order(Long id, User user, LocalDate date, BigDecimal total, List<OrderDetail> details) {
+    public Order(Long id, User user, LocalDate date, BigDecimal total, OrderStatus status, List<OrderDetail> details) {
         this.id = id;
         this.user = user;
         this.date = date;
         this.total = total;
+        this.status = status;
         this.details = details;
     }
+
+    public BigDecimal calculateTotal() {
+        return details.stream()
+                .map(OrderDetail::getSubtotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
 
     public Long getId() {
         return id;
@@ -74,6 +83,15 @@ public class Order {
 
     public List<OrderDetail> getDetails() {
         return details;
+    }
+
+
+    public OrderStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(OrderStatus status) {
+        this.status = status;
     }
 
     public void setDetails(List<OrderDetail> details) {
