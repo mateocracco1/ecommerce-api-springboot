@@ -2,14 +2,27 @@ package com.mateo.springboot.tienda.dto.product;
 
 import java.math.BigDecimal;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
 public class ProductCreateDto{
 
+    @NotBlank(message = "Product name is required")
     private String name;
+    @NotBlank(message = "Description is required")
     private String description;
+
+    @NotNull(message = "Price is required")
+    @Min(value = 0, message = "Price must be positive")
     private BigDecimal price;
 
+    @Min(value = 0, message = "Stock cannot be negative")
     private int stock;
+
+    @NotNull(message = "Category ID is required")
     private Long categoryId;
+
     private String categoryName;
 
 
