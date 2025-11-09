@@ -4,7 +4,11 @@ package com.mateo.springboot.tienda.service.order;
 import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDetailCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDto;
+import com.mateo.springboot.tienda.exceptions.order.DuplicateOrderProductException;
+import com.mateo.springboot.tienda.exceptions.order.InvalidOrderIdException;
 import com.mateo.springboot.tienda.exceptions.order.OrderNotFoundException;
+import com.mateo.springboot.tienda.exceptions.product.InvalidProductIdException;
+import com.mateo.springboot.tienda.exceptions.product.ProductOutOfStockException;
 import com.mateo.springboot.tienda.mapper.OrderDetailMapper;
 import com.mateo.springboot.tienda.mapper.OrderMapper;
 import com.mateo.springboot.tienda.models.Order;
@@ -21,7 +25,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class OrderServiceImpl  implements OrderService {
@@ -33,7 +39,8 @@ public class OrderServiceImpl  implements OrderService {
     private final UserService userService;
     private final ProductService productService;
 
-    public OrderServiceImpl(OrderRepository orderRepository,OrderMapper orderMapper, OrderDetailMapper orderDetailMapper,
+    public OrderServiceImpl(OrderRepository orderRepository,OrderMapper orderMapper,
+                            OrderDetailMapper orderDetailMapper,
                             UserService userService,
                             ProductService productService) {
         this.orderRepository = orderRepository;
@@ -60,23 +67,40 @@ public class OrderServiceImpl  implements OrderService {
     public OrderDto createOrder(OrderCreateDto dto) {
 
         User user = userService.findUserOrThrow(dto.getUserId());
-        Order order = orderMapper.fromCreateDto(dto,user);
 
+
+        Set<Long> productIds = new HashSet<>();
+
+        for (OrderDetailCreateDto detailDto : dto.getDetails()) {
+
+            if (!productIds.add(detailDto.getProductId())) {
+                throw new DuplicateOrderProductException(detailDto.getProductId());
+            }
+
+            // Validar stock disponible ANTES de restar
+            if (!productService.isStockAvailable(detailDto.getProductId(), detailDto.getQuantity())) {
+                throw new ProductOutOfStockException("");
+            }
+        }
+
+        // Crear orden
+        Order order = orderMapper.fromCreateDto(dto, user);
 
         List<OrderDetail> details = new ArrayList<>();
 
+        // Ahora sí descontar stock y crear detalles
         for (OrderDetailCreateDto detailDto : dto.getDetails()) {
             Product product = productService.findProductOrThrow(detailDto.getProductId());
 
-            productService.decreaseStock(detailDto.getProductId(),detailDto.getQuantity());
+            productService.decreaseStock(detailDto.getProductId(), detailDto.getQuantity());
 
             OrderDetail detail = orderDetailMapper.fromCreateDto(detailDto, product, order);
             details.add(detail);
-
-
         }
+
         order.setDetails(details);
         order.setTotal(order.calculateTotal());
+
         Order savedOrder = orderRepository.save(order);
         return orderMapper.toDto(savedOrder);
     }
@@ -92,10 +116,11 @@ public class OrderServiceImpl  implements OrderService {
         orderRepository.delete(order);
     }
 
-
-
     private Order findOrderOrThrow(Long orderId){
-      return orderRepository.findById(orderId)
+        if (orderId == null || orderId <= 0){
+            throw new InvalidOrderIdException();
+        }
+        return orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 

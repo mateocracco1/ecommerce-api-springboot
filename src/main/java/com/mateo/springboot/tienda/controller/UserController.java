@@ -5,6 +5,7 @@ import com.mateo.springboot.tienda.dto.user.UserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
 import com.mateo.springboot.tienda.service.user.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +33,12 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto>createUserAsAdmin(@RequestBody  UserCreateDto userCreateDto){
+    public ResponseEntity<UserDto>createUserAsAdmin(@Valid  @RequestBody  UserCreateDto userCreateDto){
         UserDto user = userService.createUserAsAdmin(userCreateDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto>updateUser(@PathVariable Long id,@RequestBody UserUpdateDto updateDto){
+    public ResponseEntity<UserDto>updateUser(@PathVariable Long id,@Valid @RequestBody UserUpdateDto updateDto){
         UserDto user = userService.updateUser(id,updateDto);
         return  ResponseEntity.ok(user);
     }
