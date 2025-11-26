@@ -11,6 +11,7 @@ public class UserUpdateDto {
     @Size(min = 6, message = "Password must have at least 6 characters")
     private  String password;
 
+    //agregar email para modif
 
     public UserUpdateDto() {
     }

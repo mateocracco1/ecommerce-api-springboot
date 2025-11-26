@@ -3,6 +3,7 @@ package com.mateo.springboot.tienda.dto.user;
 import com.mateo.springboot.tienda.models.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class UserCreateDto {
@@ -19,7 +20,7 @@ public class UserCreateDto {
     @Size(min = 6, message = "Password must have at least 6 characters")
     private String password;
 
-    @NotBlank(message = "Role is required")
+    @NotNull(message = "Role is required")
     private Role role;
 
     public UserCreateDto() {
