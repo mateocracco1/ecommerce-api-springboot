@@ -13,7 +13,7 @@ public class UserMapper {
         public static User toUser(UserDto userDto){
             User user = new User();
             user.setId(userDto.getId());
-            user.setUsername(userDto.getName());
+            user.setUsername(userDto.getUsername());
             user.setEmail(userDto.getEmail());
             return user;
         }
@@ -22,7 +22,7 @@ public class UserMapper {
         public static UserDto toDto(User user){
             UserDto userDto = new UserDto();
             userDto.setId(user.getId());
-            userDto.setName(user.getUsername());
+            userDto.setUsername(user.getUsername());
             userDto.setEmail(user.getEmail());
             return userDto;
         }
