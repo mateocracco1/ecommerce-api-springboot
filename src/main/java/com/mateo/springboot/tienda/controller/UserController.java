@@ -1,7 +1,8 @@
 package com.mateo.springboot.tienda.controller;
 
 import com.mateo.springboot.tienda.dto.product.ProductDto;
-import com.mateo.springboot.tienda.dto.user.UserCreateDto;
+
+import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
 import com.mateo.springboot.tienda.service.order.OrderServiceImpl;
@@ -39,7 +40,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto>createUserAsAdmin(@Valid  @RequestBody  UserCreateDto userCreateDto){
+    public ResponseEntity<UserDto>createUserAsAdmin(@Valid  @RequestBody AdminUserCreateDto userCreateDto){
         log.info("POST /api/users/{} - Creating user as admin", userCreateDto.getUsername());
         UserDto user = userService.createUserAsAdmin(userCreateDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);

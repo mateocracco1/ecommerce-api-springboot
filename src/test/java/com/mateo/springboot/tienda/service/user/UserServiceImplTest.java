@@ -1,6 +1,6 @@
 package com.mateo.springboot.tienda.service.user;
 
-import com.mateo.springboot.tienda.dto.user.UserCreateDto;
+import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.dto.user.UserRegisterDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
@@ -53,7 +53,7 @@ class UserServiceImplTest {
 
     @Test
     void testCreateUser_success() {
-        UserCreateDto dto = new UserCreateDto("lucas", "lucas@example.com", "password123", Role.ADMIN);
+        AdminUserCreateDto dto = new AdminUserCreateDto ("lucas", "lucas@example.com", "password123", Role.ADMIN);
 
         User savedUser = new User();
         savedUser.setId(1L);

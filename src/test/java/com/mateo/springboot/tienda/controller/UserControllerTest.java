@@ -1,6 +1,7 @@
 package com.mateo.springboot.tienda.controller;
 
-import com.mateo.springboot.tienda.dto.user.UserCreateDto;
+
+import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.models.Role;
 import com.mateo.springboot.tienda.service.user.UserService;
@@ -78,7 +79,7 @@ class UserControllerTest {
     @Test
     void shouldCreateAsAdminUser() throws Exception {
         // Simulamos el DTO que recibe el controlador
-        UserCreateDto request = new UserCreateDto(
+        AdminUserCreateDto  request = new AdminUserCreateDto(
                 "lucas",
                 "lucas@example.com",
                 "password123",
@@ -88,7 +89,7 @@ class UserControllerTest {
         // Simulamos la respuesta que devuelve el servicio
         UserDto saved = new UserDto(1L, "lucas", "lucas@example.com");
 
-        when(userService.createUserAsAdmin(Mockito.any(UserCreateDto.class))).thenReturn(saved);
+        when(userService.createUserAsAdmin(Mockito.any(AdminUserCreateDto.class))).thenReturn(saved);
 
         // JSON que se enviará en la petición POST
         String jsonRequest = """
@@ -108,7 +109,7 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.name").value("lucas"))
                 .andExpect(jsonPath("$.email").value("lucas@example.com"));
 
-        Mockito.verify(userService).createUserAsAdmin(Mockito.any(UserCreateDto.class));
+        Mockito.verify(userService).createUserAsAdmin(Mockito.any(AdminUserCreateDto.class));
     }
 
 
