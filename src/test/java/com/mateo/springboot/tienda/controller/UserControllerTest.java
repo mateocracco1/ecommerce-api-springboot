@@ -82,8 +82,8 @@ class UserControllerTest {
         AdminUserCreateDto  request = new AdminUserCreateDto(
                 "lucas",
                 "lucas@example.com",
-                "password123",
-                Role.ADMIN
+                "password123"
+
         );
 
         // Simulamos la respuesta que devuelve el servicio

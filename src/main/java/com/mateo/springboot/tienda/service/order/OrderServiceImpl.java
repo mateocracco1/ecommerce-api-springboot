@@ -70,11 +70,11 @@ public class OrderServiceImpl  implements OrderService {
 
     @Override
     @Transactional
-    public OrderDto createOrder(OrderCreateDto dto) {
+    public OrderDto createOrder(OrderCreateDto dto , Long userId) {
 
-        log.info("Attempting to create order for userId {}", dto.getUserId());
+        log.info("Attempting to create order for userId {}", userId);
 
-        User user = userService.findUserOrThrow(dto.getUserId());
+        User user = userService.findUserOrThrow(userId);
         Set<Long> productIds = new HashSet<>();
 
         for (OrderDetailCreateDto detailDto : dto.getDetails()) {
@@ -140,4 +140,12 @@ public class OrderServiceImpl  implements OrderService {
                     return new OrderNotFoundException(orderId);});
     }
 
+
+    @Override
+    public boolean isOrderOwner(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        return order.getUser().getId().equals(userId);
+    }
 }

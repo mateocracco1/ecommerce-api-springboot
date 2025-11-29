@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDto registerUser(UserRegisterDto dto) {
+    public UserDto register(UserRegisterDto dto) {   //register publico
         log.info("Trying to register a user with email: {}", dto.getEmail());
 
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -92,6 +92,7 @@ public class UserServiceImpl implements UserService{
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(Role.CUSTOMER);
+        user.setEnabled(true);
 
         User saved = userRepository.save(user);
         log.info("User registered successfully with id {}", saved.getId());

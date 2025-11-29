@@ -53,7 +53,7 @@ class UserServiceImplTest {
 
     @Test
     void testCreateUser_success() {
-        AdminUserCreateDto dto = new AdminUserCreateDto ("lucas", "lucas@example.com", "password123", Role.ADMIN);
+        AdminUserCreateDto dto = new AdminUserCreateDto ("lucas", "lucas@example.com", "password123");
 
         User savedUser = new User();
         savedUser.setId(1L);
@@ -157,7 +157,7 @@ class UserServiceImplTest {
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
         // 🧭 Act (acción)
-        UserDto result = userService.registerUser(dto);
+        UserDto result = userService.register(dto);
 
         // ✅ Assert (verificación)
         assertNotNull(result);

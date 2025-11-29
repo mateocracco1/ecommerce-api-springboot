@@ -1,17 +1,17 @@
 package com.mateo.springboot.tienda.controller;
 
-import com.mateo.springboot.tienda.dto.product.ProductDto;
-
 import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
-import com.mateo.springboot.tienda.service.order.OrderServiceImpl;
+import com.mateo.springboot.tienda.security.CustomUserDetails;
 import com.mateo.springboot.tienda.service.user.UserService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,31 +28,51 @@ public class UserController {
         this.userService = userService;
     }
 
+
+    //agregar para ver mis propios datos
+    //public User getMyInfo(@AuthenticationPrincipal Object principal)
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<UserDto> getMyInfo(
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+        return ResponseEntity.ok(
+                userService.findUserById(userDetails.getId())
+        );
+    }
+
+
     @GetMapping
-    public ResponseEntity<List<UserDto>>getAllUsers(){
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserDto>> getUsers(){
         return ResponseEntity.ok(userService.findAllUsers());
     }
 
     @GetMapping("/{id}")
-    public  ResponseEntity<UserDto>getUserById(@PathVariable Long id){
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
+    public  ResponseEntity<UserDto> geUsertById(@PathVariable Long id){
         log.info("GET /api/users/{} - Fetching user", id);
         return ResponseEntity.ok(userService.findUserById(id));
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto>createUserAsAdmin(@Valid  @RequestBody AdminUserCreateDto userCreateDto){
         log.info("POST /api/users/{} - Creating user as admin", userCreateDto.getUsername());
         UserDto user = userService.createUserAsAdmin(userCreateDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<UserDto>updateUser(@PathVariable Long id,@Valid @RequestBody UserUpdateDto updateDto){
-        log.info("PUT /api/users/{} - Updating user", updateDto.getUsername());
+        log.info("PUT /api/users/{} - Updating user", id);
         UserDto user = userService.updateUser(id,updateDto);
         return  ResponseEntity.ok(user);
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         log.info("DELETE /api/users/{} - Deleting user", id);
         userService.deleteUserById(id);

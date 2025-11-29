@@ -18,7 +18,9 @@ public interface UserService{
     UserDto createUserAsAdmin(AdminUserCreateDto userCreateDto);
     UserDto updateUser(Long id, UserUpdateDto userUpdateDto);// actualiza un usuario
     void deleteUserById(Long id);
-    UserDto registerUser(UserRegisterDto dto);
+    UserDto register(UserRegisterDto dto);
     User findUserOrThrow(Long userId);
+
+
 
 }
