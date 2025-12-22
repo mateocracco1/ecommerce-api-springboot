@@ -1,6 +1,7 @@
 package com.mateo.springboot.tienda.mapper;
 
-import com.mateo.springboot.tienda.dto.user.UserCreateDto;
+
+import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
 import com.mateo.springboot.tienda.models.User;
@@ -29,7 +30,7 @@ public class UserMapper {
 
         //Create
 
-        public  static User toUser(UserCreateDto dto){
+        public  static User toUser(AdminUserCreateDto dto){
             User user = new User();
             user.setUsername(dto.getUsername());
             user.setEmail(dto.getEmail());
