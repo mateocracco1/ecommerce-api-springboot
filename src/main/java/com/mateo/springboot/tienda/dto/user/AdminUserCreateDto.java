@@ -6,7 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class UserCreateDto {
+
+public class AdminUserCreateDto  {
 
     @NotBlank(message = "Username is required")
     @Size(min = 3, max = 50, message = "Username must be between 3 and 50 characters")
@@ -20,17 +21,16 @@ public class UserCreateDto {
     @Size(min = 6, message = "Password must have at least 6 characters")
     private String password;
 
-    @NotNull(message = "Role is required")
-    private Role role;
 
-    public UserCreateDto() {
+
+    public AdminUserCreateDto () {
     }
 
-    public UserCreateDto(String username, String email, String password, Role role) {
+    public AdminUserCreateDto (String username, String email, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.role = role;
+
     }
 
     public String getEmail() {
@@ -41,13 +41,7 @@ public class UserCreateDto {
         this.email = email;
     }
 
-    public Role getRole() {
-        return role;
-    }
 
-    public void setRole(Role role) {
-        this.role = role;
-    }
 
     public String getPassword() {
         return password;

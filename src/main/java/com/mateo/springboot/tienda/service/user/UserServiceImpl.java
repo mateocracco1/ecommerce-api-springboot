@@ -1,10 +1,11 @@
 package com.mateo.springboot.tienda.service.user;
 
 
+import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.mateo.springboot.tienda.dto.user.UserCreateDto;
+
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.dto.user.UserRegisterDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
@@ -49,7 +50,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDto createUserAsAdmin(UserCreateDto userCreateDto) {  // admin
+    public UserDto createUserAsAdmin(AdminUserCreateDto userCreateDto) {  // admin
 
         log.info("Attempting to create user as ADMIN with email: {}", userCreateDto.getEmail());
 
@@ -65,6 +66,7 @@ public class UserServiceImpl implements UserService{
         }
 
         User user = UserMapper.toUser(userCreateDto);
+        user.setRole(Role.ADMIN);
         user.setPassword(passwordEncoder.encode((userCreateDto.getPassword())));
         User save = userRepository.save(user);
         log.info("Admin created new user successfully with id {}", save.getId());
@@ -72,7 +74,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDto registerUser(UserRegisterDto dto) {
+    public UserDto register(UserRegisterDto dto) {   //register publico
         log.info("Trying to register a user with email: {}", dto.getEmail());
 
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -90,6 +92,7 @@ public class UserServiceImpl implements UserService{
         user.setEmail(dto.getEmail());
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole(Role.CUSTOMER);
+        user.setEnabled(true);
 
         User saved = userRepository.save(user);
         log.info("User registered successfully with id {}", saved.getId());
