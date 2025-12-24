@@ -27,6 +27,7 @@ public class AuthController {
     private final UserService userService;
 
 
+
     public AuthController(AuthenticationManager authenticationManager, JwtUtil jwtUtil, UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -41,7 +42,6 @@ public class AuthController {
     }
 
     //login
-
     @PostMapping("/login")
     public LoginResponseDto login(@RequestBody LoginRequestDto loginRequest) {
         try {
