@@ -7,7 +7,7 @@ import com.mateo.springboot.tienda.models.User;
 import java.math.BigDecimal;
 import java.util.List;
 
-interface CartService {
+public interface CartService {
 
     Cart getActiveCart(User user);
     void addProduct(User user, Long productId, int quantity);
