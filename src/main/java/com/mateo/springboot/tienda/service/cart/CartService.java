@@ -15,5 +15,10 @@ public interface CartService {
     void removeProduct(User user, Long productId);
     BigDecimal calculateSubtotal(Cart cart);
     List<CartItem> getItems(User user);
+    void completeCart(Cart cart);
+
+
+
+
 
 }

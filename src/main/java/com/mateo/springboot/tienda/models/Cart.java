@@ -90,4 +90,8 @@ public class Cart {
     public void setItems(List<CartItem> items) {
         this.items = items;
     }
+
+    public boolean isEmpty() {
+        return items.isEmpty();
+    }
 }

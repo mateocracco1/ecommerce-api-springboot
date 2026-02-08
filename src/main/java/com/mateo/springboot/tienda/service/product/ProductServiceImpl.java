@@ -119,7 +119,7 @@ public class ProductServiceImpl implements  ProductService{
         log.info("Product deleted successfully with id: {}", id);
     }
 
-    //-----------------stock-----------------
+    //-----------------stock product-----------------
 
 
     @Transactional

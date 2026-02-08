@@ -14,17 +14,17 @@ public class OrderDetail {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;    // producto del detalle
+    private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private Order order;        // pedido al que pertenece
+    private Order order;
 
     @Column(nullable = false)
-    private int quantity;       // cantidad del producto
+    private int quantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal unitPrice; // precio unitario al momento de la compra
+    private BigDecimal unitPrice;
 
 
     public OrderDetail() {

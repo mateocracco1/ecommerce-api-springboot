@@ -4,13 +4,13 @@ import com.mateo.springboot.tienda.dto.cart.CartItemResponseDTO;
 import com.mateo.springboot.tienda.dto.cart.CartResponseDTO;
 import com.mateo.springboot.tienda.models.Cart;
 import com.mateo.springboot.tienda.service.cart.CartService;
+import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+@Component
 public class CartMapper {
-
-
 
 
     public CartResponseDTO toDto(Cart cart, BigDecimal subtotal) {
@@ -36,7 +36,6 @@ public class CartMapper {
         response.setSubTotal(subtotal);
 
         return response;
-
     }
 
 

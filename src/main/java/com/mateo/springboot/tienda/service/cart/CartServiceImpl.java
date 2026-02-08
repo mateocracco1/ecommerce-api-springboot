@@ -111,4 +111,12 @@ public class CartServiceImpl implements CartService{
     public List<CartItem> getItems(User user) {
         return getActiveCart(user).getItems();
     }
+
+    @Transactional
+    @Override
+    public void completeCart(Cart cart){
+        cart.setStatus(StatusCart.COMPLETED);
+    }
+
+
 }

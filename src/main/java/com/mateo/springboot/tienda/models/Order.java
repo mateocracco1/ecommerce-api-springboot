@@ -17,18 +17,18 @@ public class Order {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id",nullable = false)
-    private User user;              // quién hizo el pedidos
+    private User user;
 
     private LocalDateTime date;         // fecha del pedido
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal total;           // total del pedido
+    private BigDecimal total;
 
-    @Enumerated(EnumType.STRING) // <- Esto hace que se guarde como texto en la base de datos
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderDetail> details; // lista de productos en el pedido
+    private List<OrderDetail> details;
 
     public Order() {
     }
