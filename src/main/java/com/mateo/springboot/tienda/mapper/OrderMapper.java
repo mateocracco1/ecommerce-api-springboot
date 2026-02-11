@@ -50,7 +50,7 @@ public class OrderMapper {
         order.setUser(user);
         order.setDate(LocalDateTime.now());
         order.setTotal(java.math.BigDecimal.ZERO); // se recalcula al agregar detalles
-        order.setStatus(OrderStatus.PENDING);
+        order.setStatus(OrderStatus.CREATED);
         return order;
     }
 }

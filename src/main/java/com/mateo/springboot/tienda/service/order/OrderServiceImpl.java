@@ -70,13 +70,19 @@ public class OrderServiceImpl  implements OrderService {
         return orderMapper.toDto(order);
     }
 
+
+    //Para compra rapida/now
     @Override
     @Transactional
-    public OrderDto createOrder(OrderCreateDto dto , Long userId) {
+    public Order createOrder(OrderCreateDto dto , Long userId) {
 
         log.info("Attempting to create order for userId {}", userId);
 
         User user = userService.findUserOrThrow(userId);
+
+        Order order = orderMapper.fromCreateDto(dto, user);
+
+        List<OrderDetail> details = new ArrayList<>();
         Set<Long> productIds = new HashSet<>();
 
         for (OrderDetailCreateDto detailDto : dto.getDetails()) {
@@ -85,35 +91,22 @@ public class OrderServiceImpl  implements OrderService {
                 log.warn("Duplicate productId {} detected in order request", detailDto.getProductId());
                 throw new DuplicateOrderProductException(detailDto.getProductId());
             }
-
-            // Validar stock disponible ANTES de restar
-            if (!productService.isStockAvailable(detailDto.getProductId(), detailDto.getQuantity())) {
-                log.warn("Not enough stock for productId {}. Requested={}", detailDto.getProductId(), detailDto.getQuantity());
-                throw new ProductOutOfStockException("");
-            }
-        }
-        log.info("All products validated for order creation . Proceeding with stock adjustment...");
-        // Crear orden
-        Order order = orderMapper.fromCreateDto(dto, user);
-
-        List<OrderDetail> details = new ArrayList<>();
-
-        // Ahora sí descontar stock y crear detalles
-        for (OrderDetailCreateDto detailDto : dto.getDetails()) {
-            Product product = productService.findProductOrThrow(detailDto.getProductId());
-
             productService.decreaseStock(detailDto.getProductId(), detailDto.getQuantity());
 
+            Product product = productService.findProductOrThrow(detailDto.getProductId());
+
             OrderDetail detail = orderDetailMapper.fromCreateDto(detailDto, product, order);
+            detail.setUnitPrice(product.getPrice());
             details.add(detail);
         }
+
 
         order.setDetails(details);
         order.setTotal(order.calculateTotal());
 
         Order savedOrder = orderRepository.save(order);
         log.info("Order created  successfully with id {}", savedOrder.getId());
-        return orderMapper.toDto(savedOrder);
+        return savedOrder;
     }
 
     @Override
@@ -142,14 +135,6 @@ public class OrderServiceImpl  implements OrderService {
                     return new OrderNotFoundException(orderId);});
     }
 
-
-    @Override
-    public boolean isOrderOwner(Long orderId, Long userId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new OrderNotFoundException(orderId));
-
-        return order.getUser().getId().equals(userId);
-    }
 
     @Transactional
     @Override
@@ -187,9 +172,18 @@ public class OrderServiceImpl  implements OrderService {
         order.setTotal(order.calculateTotal());
 
         Order save = orderRepository.save(order);
-
         cartService.completeCart(cart);
 
         return save;
     }
+
+
+    @Override
+    public boolean isOrderOwner(Long orderId, Long userId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
+
+        return order.getUser().getId().equals(userId);
+    }
+
 }

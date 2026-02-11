@@ -2,7 +2,10 @@ package com.mateo.springboot.tienda.controller;
 
 import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDto;
+import com.mateo.springboot.tienda.mapper.OrderMapper;
+import com.mateo.springboot.tienda.models.Order;
 import com.mateo.springboot.tienda.security.CustomUserDetails;
+import com.mateo.springboot.tienda.security.CustomUserDetailsService;
 import com.mateo.springboot.tienda.service.order.OrderService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -21,12 +24,13 @@ public class OrderController {
 
     private final OrderService orderService;
     private final Logger log  = LoggerFactory.getLogger(OrderController.class);
-
+    private final OrderMapper orderMapper;
 
     //Agregar ver mis ordenes
 
-    public OrderController(OrderService orderService) {
+    public OrderController(OrderService orderService, OrderMapper orderMapper) {
         this.orderService = orderService;
+        this.orderMapper = orderMapper;
     }
 
     @GetMapping
@@ -47,8 +51,10 @@ public class OrderController {
             ,@AuthenticationPrincipal CustomUserDetails principal) { // principal obtengo id user
 
         log.info("POST/api/orders/{} - Creating Product for  user ", principal.getId());
-        OrderDto orderDto = orderService.createOrder(orderCreateDto,principal.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(orderDto);
+        Order order = orderService.createOrder(orderCreateDto,principal.getId());
+        OrderDto responseDto = orderMapper.toDto(order);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
     @DeleteMapping("/{id}")
