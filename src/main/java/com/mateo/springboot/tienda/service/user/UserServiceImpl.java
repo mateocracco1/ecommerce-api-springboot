@@ -2,6 +2,7 @@ package com.mateo.springboot.tienda.service.user;
 
 
 import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
+import com.mateo.springboot.tienda.mapper.UserMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,6 @@ import com.mateo.springboot.tienda.exceptions.user.EmailAlreadyExistsException;
 import com.mateo.springboot.tienda.exceptions.user.InvalidUserIdException;
 import com.mateo.springboot.tienda.exceptions.user.UserNotFoundException;
 import com.mateo.springboot.tienda.exceptions.user.UsernameAlreadyExistsException;
-import com.mateo.springboot.tienda.mapper.UserMapper;
 import com.mateo.springboot.tienda.models.Role;
 import com.mateo.springboot.tienda.models.User;
 import com.mateo.springboot.tienda.repository.UserRepository;
@@ -31,26 +31,27 @@ public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final   Logger log  = LoggerFactory.getLogger(UserServiceImpl.class);
+    private final UserMapper userMapper;
 
-
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public List<UserDto> findAllUsers() {
-        return userRepository.findAll().stream().map(UserMapper::toDto).toList();
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 
     @Override
-    public UserDto findUserById(Long id) {
+    public User findUserById(Long id) {
         User user = findUserOrThrow(id);
-        return UserMapper.toDto(user);
+        return user;
     }
 
     @Override
-    public UserDto createUserAsAdmin(AdminUserCreateDto userCreateDto) {  // admin
+    public User createUserAsAdmin(AdminUserCreateDto userCreateDto) {  // admin
 
         log.info("Attempting to create user as ADMIN with email: {}", userCreateDto.getEmail());
 
@@ -65,16 +66,16 @@ public class UserServiceImpl implements UserService{
             throw new UsernameAlreadyExistsException(userCreateDto.getUsername());
         }
 
-        User user = UserMapper.toUser(userCreateDto);
+        User user = userMapper.toEntity(userCreateDto);
         user.setRole(Role.ADMIN);
         user.setPassword(passwordEncoder.encode((userCreateDto.getPassword())));
         User save = userRepository.save(user);
         log.info("Admin created new user successfully with id {}", save.getId());
-        return UserMapper.toDto(save);
+        return save;
     }
 
     @Override
-    public UserDto register(UserRegisterDto dto) {   //register publico
+    public User register(UserRegisterDto dto) {   //register publico
         log.info("Trying to register a user with email: {}", dto.getEmail());
 
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -96,23 +97,24 @@ public class UserServiceImpl implements UserService{
 
         User saved = userRepository.save(user);
         log.info("User registered successfully with id {}", saved.getId());
-        return UserMapper.toDto(saved);
+        return saved;
     }
 
     @Override
-    public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
+    public User updateUser(Long id, UserUpdateDto userUpdateDto) {
 
         log.info("Attempting to update user with id: {}", id);
 
         User user = findUserOrThrow(id);
-        UserMapper.updateUser(user, userUpdateDto);
+        userMapper.updateUser(user, userUpdateDto);
+
         if (userUpdateDto.getPassword() != null && !userUpdateDto.getPassword().isBlank()) {
             log.debug("Updating password for user id {}", id);
             user.setPassword(passwordEncoder.encode(userUpdateDto.getPassword()));
         }
         User updated = userRepository.save(user);
         log.info("User updated successfully with id: {}", updated.getId());
-        return UserMapper.toDto(updated);
+        return updated;
     }
 
 

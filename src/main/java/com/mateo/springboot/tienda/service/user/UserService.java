@@ -13,12 +13,12 @@ import java.util.List;
 
 public interface UserService{
 
-    List<UserDto>findAllUsers();
-    UserDto findUserById(Long id);
-    UserDto createUserAsAdmin(AdminUserCreateDto userCreateDto);
-    UserDto updateUser(Long id, UserUpdateDto userUpdateDto);// actualiza un usuario
+    List<User>findAllUsers();
+    User findUserById(Long id);
+    User createUserAsAdmin(AdminUserCreateDto userCreateDto);
+    User updateUser(Long id, UserUpdateDto userUpdateDto);// actualiza un usuario
     void deleteUserById(Long id);
-    UserDto register(UserRegisterDto dto);
+    User register(UserRegisterDto dto);
     User findUserOrThrow(Long userId);
 
 
