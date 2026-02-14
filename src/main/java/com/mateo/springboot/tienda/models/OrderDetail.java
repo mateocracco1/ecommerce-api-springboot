@@ -12,43 +12,37 @@ public class OrderDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
-    private Product product;    // producto del detalle
+    private Product product;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
-    private Order order;        // pedido al que pertenece
+    private Order order;
 
     @Column(nullable = false)
-    private int quantity;       // cantidad del producto
+    private int quantity;
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal unitPrice; // precio unitario al momento de la compra
-    @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal subtotal;
-
-//🔹 Concepto clave
-//
-//Order 1 → N OrderDetail → 1 Product
-//
-//Cada detalle sabe: qué producto es, cuántas unidades, precio unitario y subtotal.
-//
-//Esto rompe la relación muchos a muchos entre Order y Product.
+    private BigDecimal unitPrice;
 
 
     public OrderDetail() {
     }
 
-    public OrderDetail(Long id, Product product, Order order, int quantity, BigDecimal unitPrice, BigDecimal subtotal) {
+    public OrderDetail(Long id, Product product, Order order, int quantity, BigDecimal unitPrice) {
         this.id = id;
         this.product = product;
         this.order = order;
         this.quantity = quantity;
         this.unitPrice = unitPrice;
-        this.subtotal = subtotal;
+
     }
 
+    @Transient
+    public BigDecimal getSubtotal() {
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
+    }
 
     public Long getId() {
         return id;
@@ -82,13 +76,7 @@ public class OrderDetail {
         this.quantity = quantity;
     }
 
-    public BigDecimal getSubtotal() {
-        return subtotal;
-    }
 
-    public void setSubtotal(BigDecimal subtotal) {
-        this.subtotal = subtotal;
-    }
 
     public BigDecimal getUnitPrice() {
         return unitPrice;

@@ -32,9 +32,7 @@ public class OrderDetailMapper {
         detail.setOrder(order);
         detail.setQuantity(dto.getQuantity());
         detail.setUnitPrice(product.getPrice());
-        detail.setSubtotal(product.getPrice().multiply(
-                java.math.BigDecimal.valueOf(dto.getQuantity())
-        ));
+
         return detail;
     }
 

@@ -13,5 +13,4 @@ public class OrderSecurity {
     public boolean isOwner(Long orderId, Long userId) {
         return orderService.isOrderOwner(orderId, userId);
     }
-
 }

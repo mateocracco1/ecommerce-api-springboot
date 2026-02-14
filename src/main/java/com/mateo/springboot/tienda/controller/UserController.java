@@ -3,6 +3,7 @@ package com.mateo.springboot.tienda.controller;
 import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
+import com.mateo.springboot.tienda.mapper.UserMapper;
 import com.mateo.springboot.tienda.security.CustomUserDetails;
 import com.mateo.springboot.tienda.service.user.UserService;
 import jakarta.validation.Valid;
@@ -22,10 +23,12 @@ public class UserController {
 
     private final UserService userService;
     private final Logger log  = LoggerFactory.getLogger(UserController.class);
+    private final UserMapper userMapper;
 
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
+        this.userMapper = userMapper;
     }
 
 
@@ -36,38 +39,38 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> getMyInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-
-        return ResponseEntity.ok(
-                userService.findUserById(userDetails.getId())
-        );
+        UserDto userDto = userMapper.toDto(userService.findUserById(userDetails.getId()));
+        return ResponseEntity.ok(userDto);
     }
 
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDto>> getUsers(){
-        return ResponseEntity.ok(userService.findAllUsers());
+        return ResponseEntity.ok(userService.findAllUsers().stream().map(userMapper::toDto).toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public  ResponseEntity<UserDto> geUsertById(@PathVariable Long id){
         log.info("GET /api/users/{} - Fetching user", id);
-        return ResponseEntity.ok(userService.findUserById(id));
+        UserDto userDto = userMapper.toDto(userService.findUserById(id));
+        return ResponseEntity.ok(userDto);
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto>createUserAsAdmin(@Valid  @RequestBody AdminUserCreateDto userCreateDto){
         log.info("POST /api/users/{} - Creating user as admin", userCreateDto.getUsername());
-        UserDto user = userService.createUserAsAdmin(userCreateDto);
+        UserDto user = userMapper.toDto(userService.createUserAsAdmin(userCreateDto));
         return ResponseEntity.status(HttpStatus.CREATED).body(user);
     }
+
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<UserDto>updateUser(@PathVariable Long id,@Valid @RequestBody UserUpdateDto updateDto){
         log.info("PUT /api/users/{} - Updating user", id);
-        UserDto user = userService.updateUser(id,updateDto);
+        UserDto user = userMapper.toDto(userService.updateUser(id,updateDto));
         return  ResponseEntity.ok(user);
     }
 

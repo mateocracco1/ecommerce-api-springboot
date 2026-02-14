@@ -41,7 +41,6 @@ public class AuthController {
     }
 
     //login
-
     @PostMapping("/login")
     public LoginResponseDto login(@RequestBody LoginRequestDto loginRequest) {
         try {

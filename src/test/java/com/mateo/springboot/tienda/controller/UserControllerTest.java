@@ -44,7 +44,7 @@ class UserControllerTest {
                 new UserDto(3L, "pep", "pep@example.com")
         );
 
-        when(userService.findAllUsers()).thenReturn(users);
+//        when(userService.findAllUsers()).thenReturn(users);
 
         // Llamamos al endpoint y verificamos la respuesta
         mockMvc.perform(get("/api/users")
@@ -65,7 +65,7 @@ class UserControllerTest {
         // Simulamos un usuario
         UserDto user = new UserDto(1L, "mateo", "mateo@example.com");
 
-        when(userService.findUserById(1L)).thenReturn(user);
+//        when(userService.findUserById(1L)).thenReturn(user);
 
         mockMvc.perform(get("/api/users/{id}", 1L)
                         .contentType(APPLICATION_JSON))

@@ -11,13 +11,11 @@ import com.mateo.springboot.tienda.exceptions.product.InvalidProductIdException;
 import com.mateo.springboot.tienda.exceptions.product.ProductOutOfStockException;
 import com.mateo.springboot.tienda.mapper.OrderDetailMapper;
 import com.mateo.springboot.tienda.mapper.OrderMapper;
-import com.mateo.springboot.tienda.models.Order;
-import com.mateo.springboot.tienda.models.OrderDetail;
-import com.mateo.springboot.tienda.models.Product;
-import com.mateo.springboot.tienda.models.User;
+import com.mateo.springboot.tienda.models.*;
 import com.mateo.springboot.tienda.repository.OrderRepository;
 import com.mateo.springboot.tienda.repository.ProductRepository;
 import com.mateo.springboot.tienda.repository.UserRepository;
+import com.mateo.springboot.tienda.service.cart.CartService;
 import com.mateo.springboot.tienda.service.product.ProductService;
 import com.mateo.springboot.tienda.service.product.ProductServiceImpl;
 import com.mateo.springboot.tienda.service.user.UserService;
@@ -27,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -41,19 +40,22 @@ public class OrderServiceImpl  implements OrderService {
     private final OrderDetailMapper orderDetailMapper;
     private final UserService userService;
     private final ProductService productService;
+    private  final CartService cartService;
+
 
     private final Logger log  = LoggerFactory.getLogger(OrderServiceImpl.class);
 
 
-    public OrderServiceImpl(OrderRepository orderRepository,OrderMapper orderMapper,
+    public OrderServiceImpl(OrderRepository orderRepository, OrderMapper orderMapper,
                             OrderDetailMapper orderDetailMapper,
                             UserService userService,
-                            ProductService productService) {
+                            ProductService productService, CartService cartService) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
         this.orderDetailMapper = orderDetailMapper;
         this.userService = userService;
         this.productService = productService;
+        this.cartService = cartService;
     }
 
 
@@ -68,13 +70,19 @@ public class OrderServiceImpl  implements OrderService {
         return orderMapper.toDto(order);
     }
 
+
+    //Para compra rapida/now
     @Override
     @Transactional
-    public OrderDto createOrder(OrderCreateDto dto , Long userId) {
+    public Order createOrder(OrderCreateDto dto , Long userId) {
 
         log.info("Attempting to create order for userId {}", userId);
 
         User user = userService.findUserOrThrow(userId);
+
+        Order order = orderMapper.fromCreateDto(dto, user);
+
+        List<OrderDetail> details = new ArrayList<>();
         Set<Long> productIds = new HashSet<>();
 
         for (OrderDetailCreateDto detailDto : dto.getDetails()) {
@@ -83,35 +91,22 @@ public class OrderServiceImpl  implements OrderService {
                 log.warn("Duplicate productId {} detected in order request", detailDto.getProductId());
                 throw new DuplicateOrderProductException(detailDto.getProductId());
             }
-
-            // Validar stock disponible ANTES de restar
-            if (!productService.isStockAvailable(detailDto.getProductId(), detailDto.getQuantity())) {
-                log.warn("Not enough stock for productId {}. Requested={}", detailDto.getProductId(), detailDto.getQuantity());
-                throw new ProductOutOfStockException("");
-            }
-        }
-        log.info("All products validated for order creation . Proceeding with stock adjustment...");
-        // Crear orden
-        Order order = orderMapper.fromCreateDto(dto, user);
-
-        List<OrderDetail> details = new ArrayList<>();
-
-        // Ahora sí descontar stock y crear detalles
-        for (OrderDetailCreateDto detailDto : dto.getDetails()) {
-            Product product = productService.findProductOrThrow(detailDto.getProductId());
-
             productService.decreaseStock(detailDto.getProductId(), detailDto.getQuantity());
 
+            Product product = productService.findProductOrThrow(detailDto.getProductId());
+
             OrderDetail detail = orderDetailMapper.fromCreateDto(detailDto, product, order);
+            detail.setUnitPrice(product.getPrice());
             details.add(detail);
         }
+
 
         order.setDetails(details);
         order.setTotal(order.calculateTotal());
 
         Order savedOrder = orderRepository.save(order);
         log.info("Order created  successfully with id {}", savedOrder.getId());
-        return orderMapper.toDto(savedOrder);
+        return savedOrder;
     }
 
     @Override
@@ -141,6 +136,48 @@ public class OrderServiceImpl  implements OrderService {
     }
 
 
+    @Transactional
+    @Override
+    public Order checkout(Long  idUser) {
+
+        User user = userService.findUserOrThrow(idUser);
+        Cart cart = cartService.getActiveCart(user);
+
+        if (cart.getItems().isEmpty()) {
+            throw new RuntimeException("Cannot checkout an empty cart"); // Crear  excepción
+        }
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus(OrderStatus.CREATED);
+        order.setDate(LocalDateTime.now());
+
+        List<OrderDetail> details = new ArrayList<>();
+
+        for (CartItem item : cart.getItems()){
+
+            productService.decreaseStock(
+                    item.getProduct().getId(),
+                    item.getQuantity()
+            );
+
+            OrderDetail orderDetail = new OrderDetail();
+            orderDetail.setOrder(order);
+            orderDetail.setProduct(item.getProduct());
+            orderDetail.setQuantity(item.getQuantity());
+            orderDetail.setUnitPrice(item.getUnitPrice());
+
+            details.add(orderDetail);
+        }
+        order.setDetails(details);
+        order.setTotal(order.calculateTotal());
+
+        Order save = orderRepository.save(order);
+        cartService.completeCart(cart);
+
+        return save;
+    }
+
+
     @Override
     public boolean isOrderOwner(Long orderId, Long userId) {
         Order order = orderRepository.findById(orderId)
@@ -148,4 +185,5 @@ public class OrderServiceImpl  implements OrderService {
 
         return order.getUser().getId().equals(userId);
     }
+
 }

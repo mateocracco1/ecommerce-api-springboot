@@ -3,48 +3,41 @@ package com.mateo.springboot.tienda.mapper;
 
 import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
+import com.mateo.springboot.tienda.dto.user.UserRegisterDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
 import com.mateo.springboot.tienda.models.User;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.springframework.stereotype.Component;
 
+
 @Component
-public class UserMapper {
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
 
-        public static User toUser(UserDto userDto){
-            User user = new User();
-            user.setId(userDto.getId());
-            user.setUsername(userDto.getUsername());
-            user.setEmail(userDto.getEmail());
-            return user;
-        }
 
+    // Para el Controller (Salida)
+    UserDto toDto(User user);
 
-        public static UserDto toDto(User user){
-            UserDto userDto = new UserDto();
-            userDto.setId(user.getId());
-            userDto.setUsername(user.getUsername());
-            userDto.setEmail(user.getEmail());
-            return userDto;
-        }
+    // Para el Service (Entrada Admin)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    User toEntity(AdminUserCreateDto dto);
 
-        //Create
+    // Para el Service (Entrada Registro Público)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "role", ignore = true)
+    @Mapping(target = "enabled", constant = "true")
+    User toEntity(UserRegisterDto dto);
 
-        public  static User toUser(AdminUserCreateDto dto){
-            User user = new User();
-            user.setUsername(dto.getUsername());
-            user.setEmail(dto.getEmail());
-            user.setPassword(dto.getPassword()); // 🔐 importante
-            user.setRole(dto.getRole());
-            return user;
-        }
-
-        //Update
-        public static void updateUser(User user, UserUpdateDto dto) {
-            if (dto.getUsername() != null && !dto.getUsername().isBlank()) {
-                user.setUsername(dto.getUsername());
-            }
-
-        }
-
+    // Para el Service (Actualización)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    void updateUser(@MappingTarget User user, UserUpdateDto dto);
 }
+
+
+
+

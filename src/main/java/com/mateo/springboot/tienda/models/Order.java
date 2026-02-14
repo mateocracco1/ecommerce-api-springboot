@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -16,23 +17,23 @@ public class Order {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id",nullable = false)
-    private User user;              // quién hizo el pedido
+    private User user;
 
-    private LocalDate date;         // fecha del pedido
+    private LocalDateTime date;         // fecha del pedido
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal total;           // total del pedido
+    private BigDecimal total;
 
-    @Enumerated(EnumType.STRING) // <- Esto hace que se guarde como texto en la base de datos
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderDetail> details; // lista de productos en el pedido
+    private List<OrderDetail> details;
 
     public Order() {
     }
 
-    public Order(Long id, User user, LocalDate date, BigDecimal total, OrderStatus status, List<OrderDetail> details) {
+    public Order(Long id, User user, LocalDateTime date, BigDecimal total, OrderStatus status, List<OrderDetail> details) {
         this.id = id;
         this.user = user;
         this.date = date;
@@ -64,11 +65,11 @@ public class Order {
         this.user = user;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

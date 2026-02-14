@@ -4,6 +4,7 @@ import com.mateo.springboot.tienda.models.OrderStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderDto {
@@ -11,7 +12,7 @@ public class OrderDto {
     private Long id;
     private Long userId;
     private String username;
-    private LocalDate date;
+    private LocalDateTime date;
     private BigDecimal total;
     private OrderStatus status;
     private List<OrderDetailDto> details;
@@ -20,7 +21,7 @@ public class OrderDto {
     public OrderDto() {
     }
 
-    public OrderDto(Long id, Long userId, String username, LocalDate date, BigDecimal total, OrderStatus status, List<OrderDetailDto> details) {
+    public OrderDto(Long id, Long userId, String username, LocalDateTime date, BigDecimal total, OrderStatus status, List<OrderDetailDto> details) {
         this.id = id;
         this.userId = userId;
         this.username = username;
@@ -54,11 +55,11 @@ public class OrderDto {
         this.username = username;
     }
 
-    public LocalDate getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(LocalDate date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

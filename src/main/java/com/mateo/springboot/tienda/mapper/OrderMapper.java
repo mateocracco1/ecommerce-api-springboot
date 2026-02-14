@@ -8,6 +8,7 @@ import com.mateo.springboot.tienda.models.User;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Component
@@ -47,9 +48,9 @@ public class OrderMapper {
 
         Order order = new Order();
         order.setUser(user);
-        order.setDate(LocalDate.now());
+        order.setDate(LocalDateTime.now());
         order.setTotal(java.math.BigDecimal.ZERO); // se recalcula al agregar detalles
-        order.setStatus(OrderStatus.PENDING);
+        order.setStatus(OrderStatus.CREATED);
         return order;
     }
 }
