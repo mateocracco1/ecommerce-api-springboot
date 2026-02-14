@@ -1,60 +1,33 @@
 package com.mateo.springboot.tienda.mapper;
 
+
 import com.mateo.springboot.tienda.dto.product.ProductCreateDto;
 import com.mateo.springboot.tienda.dto.product.ProductDto;
 import com.mateo.springboot.tienda.dto.product.ProductUpdateDto;
 import com.mateo.springboot.tienda.models.Category;
 import com.mateo.springboot.tienda.models.Product;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 
-@Component
-public class ProductMapper {
-
-
-    public static ProductDto toDto(Product product) {
-        ProductDto dto = new ProductDto();
-        dto.setId(product.getId());
-        dto.setName(product.getName());
-        dto.setDescription(product.getDescription());
-        dto.setPrice(product.getPrice());
-        dto.setStock(product.getStock());
-
-        if (product.getCategory() != null) {
-            dto.setCategoryId(product.getCategory().getId());
-            dto.setCategoryName(product.getCategory().getName());
-        }
-        return dto;
-    }
-
-    public static Product toEntity(ProductCreateDto dto, Category category) {
-        Product product = new Product();
-        product.setName(dto.getName());
-        product.setDescription(dto.getDescription());
-        product.setPrice(dto.getPrice());
-        product.setStock(dto.getStock()); // si querés, podés poner default 0
-        if (category != null) {
-            product.setCategory(category);
-        }
-        return product;
-    }
+@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+public interface ProductMapper {
 
 
-    public static void updateProduct(Product product, ProductUpdateDto dto, Category category) {
-        if (dto.getName() != null && !dto.getName().isBlank()) {
-            product.setName(dto.getName());
-        }
-        if (dto.getDescription() != null && !dto.getDescription().isBlank()) {
-            product.setDescription(dto.getDescription());
-        }
-        if (dto.getPrice() != null) {
-            product.setPrice(dto.getPrice());
-        }
-        if (dto.getStock() != null) {
-            product.setStock(dto.getStock());
-        }
-        if (category != null) { // cambiar categoría si se envió
-            product.setCategory(category);
-        }
-    }
+    // 1. De Entidad a DTO
+    // MapStruct es inteligente, pero si los nombres cambian, se lo indicamos explícitamente:
+    @Mapping(source = "category.id", target = "categoryId")
+    @Mapping(source = "category.name", target = "categoryName")
+    ProductDto toDto(Product product);
+
+
+    // 2. De DTO a Entidad (Creación)
+    @Mapping(target = "id", ignore = true) // El ID lo genera la base de datos
+    @Mapping(source = "category", target = "category") // Tomamos el 2do parámetro y lo asignamos
+    Product toEntity(ProductCreateDto dto, Category category);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(source = "category", target = "category")
+    void updateProduct(Product product, ProductUpdateDto dto, Category category);
 
 }

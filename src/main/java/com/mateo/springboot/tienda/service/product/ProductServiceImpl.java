@@ -5,13 +5,11 @@ import com.mateo.springboot.tienda.dto.product.ProductCreateDto;
 import com.mateo.springboot.tienda.dto.product.ProductDto;
 import com.mateo.springboot.tienda.dto.product.ProductUpdateDto;
 import com.mateo.springboot.tienda.exceptions.product.*;
-import com.mateo.springboot.tienda.exceptions.user.InvalidUserIdException;
 import com.mateo.springboot.tienda.mapper.ProductMapper;
 import com.mateo.springboot.tienda.models.Category;
 import com.mateo.springboot.tienda.models.Product;
 import com.mateo.springboot.tienda.repository.CategoryRepository;
 import com.mateo.springboot.tienda.repository.ProductRepository;
-import com.mateo.springboot.tienda.service.user.UserServiceImpl;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,29 +25,32 @@ public class ProductServiceImpl implements  ProductService{
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final Logger log  = LoggerFactory.getLogger(ProductServiceImpl.class);
+    private final ProductMapper productMapper;
+
 
     @Value("${product.low-stock-threshold}")
     private int lowStockThreshold;
 
-    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository) {
+    public ProductServiceImpl(ProductRepository productRepository, CategoryRepository categoryRepository, ProductMapper productMapper) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
+        this.productMapper = productMapper;
     }
 
     @Override
-    public List<ProductDto> findAllProducts() {
-        return productRepository.findAll().stream().map(ProductMapper::toDto).toList();
+    public List<Product> findAllProducts() {
+        return productRepository.findAll();
     }
 
     @Override
-    public ProductDto findProductById(Long id) {
+    public Product findProductById(Long id) {
         log.info("Request to find product by id {}", id);
         Product product = findProductOrThrow(id);
-        return ProductMapper.toDto(product);
+        return product;
     }
 
     @Override
-    public ProductDto createProduct(ProductCreateDto dto) {
+    public Product createProduct(ProductCreateDto dto) {
 
         log.info("Attempting to create product  with name: {}", dto.getName());
 
@@ -75,14 +76,13 @@ public class ProductServiceImpl implements  ProductService{
             throw new InvalidProductDataException("Category name does not match Category ID", "CATEGORY_NOT_MATCH");
         }
 
-        Product product = ProductMapper.toEntity(dto,category);
-        Product savedProduct = productRepository.save(product);
+        Product savedProduct = productRepository.save(productMapper.toEntity(dto,category));
         log.info("Product created  successfully with id {}", savedProduct.getId());
-        return ProductMapper.toDto(savedProduct);
+        return savedProduct;
     }
 
     @Override
-    public ProductDto updateProduct(Long id,ProductUpdateDto dto) {
+    public Product updateProduct(Long id,ProductUpdateDto dto) {
 
         log.info("Attempting to update product with id: {}", id);
         Product product =findProductOrThrow(id);
@@ -103,11 +103,11 @@ public class ProductServiceImpl implements  ProductService{
                     });
         }
 
-        ProductMapper.updateProduct(product,dto,category);
+        productMapper.updateProduct(product,dto,category);
         Product updatedProduct = productRepository.save(product);
         log.info("Product updated successfully with id: {}", id);
 
-        return ProductMapper.toDto(updatedProduct) ;
+        return updatedProduct ;
     }
 
     @Transactional
@@ -194,8 +194,8 @@ public class ProductServiceImpl implements  ProductService{
     }
 
     @Override
-    public List<ProductDto> listLowStockProducts() {
-        return  productRepository.findByStockLessThanEqual(lowStockThreshold).stream().map(ProductMapper::toDto).toList();
+    public List<Product> listLowStockProducts() {
+        return  productRepository.findByStockLessThanEqual(lowStockThreshold);
     }
 
     @Override

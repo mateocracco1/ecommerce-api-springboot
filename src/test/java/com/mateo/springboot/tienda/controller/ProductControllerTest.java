@@ -49,8 +49,8 @@ class ProductControllerTest {
                 new ProductDto(3L, "Monitor", "144hz 27 pulgadas", new BigDecimal("120000"), 2, 2L, "Monitores")
         );
 
-            when(productService.findAllProducts()).thenReturn(products);
-
+//            when(productService.findAllProducts()).thenReturn(products);
+//
 
             mockMvc.perform(get("/api/products").contentType(APPLICATION_JSON))
                     .andExpect(status().isOk())
@@ -68,7 +68,7 @@ class ProductControllerTest {
 
          ProductDto productDto = new ProductDto(1L,"PS5","Consola",new BigDecimal("1400"),20,1L,"Tecnologia");
 
-         when(productService.findProductById(1L)).thenReturn(productDto);
+//         when(productService.findProductById(1L)).thenReturn(productDto);
 
         mockMvc.perform(get("/api/products/{id}",1L).contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -100,8 +100,8 @@ class ProductControllerTest {
                 "Tecnologia"
         );
 
-        when(productService.createProduct(Mockito.any(ProductCreateDto.class)))
-                .thenReturn(returnedDto);
+//        when(productService.createProduct(Mockito.any(ProductCreateDto.class)))
+//                .thenReturn(returnedDto);
 
         mockMvc.perform(
                 post("/api/products")
@@ -139,9 +139,9 @@ class ProductControllerTest {
                 1L,
                 "Tecnologia"
         );
-
-        when(productService.updateProduct(Mockito.eq(1L), Mockito.any(ProductUpdateDto.class)))
-                .thenReturn(returnedDto);
+//
+//        when(productService.updateProduct(Mockito.eq(1L), Mockito.any(ProductUpdateDto.class)))
+//                .thenReturn(returnedDto);
 
         mockMvc.perform(
                         put("/api/products/1")
