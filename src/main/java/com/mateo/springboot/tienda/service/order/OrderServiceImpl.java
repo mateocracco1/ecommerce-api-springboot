@@ -7,24 +7,18 @@ import com.mateo.springboot.tienda.dto.order.OrderDto;
 import com.mateo.springboot.tienda.exceptions.order.DuplicateOrderProductException;
 import com.mateo.springboot.tienda.exceptions.order.InvalidOrderIdException;
 import com.mateo.springboot.tienda.exceptions.order.OrderNotFoundException;
-import com.mateo.springboot.tienda.exceptions.product.InvalidProductIdException;
-import com.mateo.springboot.tienda.exceptions.product.ProductOutOfStockException;
 import com.mateo.springboot.tienda.mapper.OrderDetailMapper;
 import com.mateo.springboot.tienda.mapper.OrderMapper;
 import com.mateo.springboot.tienda.models.*;
 import com.mateo.springboot.tienda.repository.OrderRepository;
-import com.mateo.springboot.tienda.repository.ProductRepository;
-import com.mateo.springboot.tienda.repository.UserRepository;
 import com.mateo.springboot.tienda.service.cart.CartService;
 import com.mateo.springboot.tienda.service.product.ProductService;
-import com.mateo.springboot.tienda.service.product.ProductServiceImpl;
 import com.mateo.springboot.tienda.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,14 +54,14 @@ public class OrderServiceImpl  implements OrderService {
 
 
     @Override
-    public List<OrderDto> findAllOrders() {
-        return orderRepository.findAll().stream().map(orderMapper::toDto).toList();
+    public List<Order> findAllOrders() {
+        return orderRepository.findAll();
     }
 
     @Override
-    public OrderDto findOrderById(Long orderId) {
+    public Order findOrderById(Long orderId) {
         Order order = findOrderOrThrow(orderId);
-        return orderMapper.toDto(order);
+        return order;
     }
 
 
@@ -80,7 +74,7 @@ public class OrderServiceImpl  implements OrderService {
 
         User user = userService.findUserOrThrow(userId);
 
-        Order order = orderMapper.fromCreateDto(dto, user);
+        Order order = orderMapper.fromCreateDto(dto);
 
         List<OrderDetail> details = new ArrayList<>();
         Set<Long> productIds = new HashSet<>();

@@ -5,7 +5,6 @@ import com.mateo.springboot.tienda.dto.order.OrderDto;
 import com.mateo.springboot.tienda.mapper.OrderMapper;
 import com.mateo.springboot.tienda.models.Order;
 import com.mateo.springboot.tienda.security.CustomUserDetails;
-import com.mateo.springboot.tienda.security.CustomUserDetailsService;
 import com.mateo.springboot.tienda.service.order.OrderService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -36,13 +35,13 @@ public class OrderController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderDto>>getOrders(){
-        return ResponseEntity.ok(orderService.findAllOrders());
+        return ResponseEntity.ok(orderService.findAllOrders().stream().map(orderMapper::toDto).toList());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @orderSecurity.isOwner(#id, authentication.principal.id)")
     public ResponseEntity<OrderDto>getOrderById(@PathVariable Long id){
-        return ResponseEntity.ok(orderService.findOrderById(id));
+        return ResponseEntity.ok(orderMapper.toDto(orderService.findOrderById(id)));
     }
 
     @PostMapping
@@ -65,6 +64,10 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 
+
+    //falta ckeckout
+
+    //falta ver mis ordenes con metodo //isOwner en serivce
 
 
 
