@@ -1,56 +1,54 @@
 package com.mateo.springboot.tienda.mapper;
 
+
 import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
+import com.mateo.springboot.tienda.dto.order.OrderDetailCreateDto;
+import com.mateo.springboot.tienda.dto.order.OrderDetailDto;
 import com.mateo.springboot.tienda.dto.order.OrderDto;
 import com.mateo.springboot.tienda.models.Order;
+import com.mateo.springboot.tienda.models.OrderDetail;
 import com.mateo.springboot.tienda.models.OrderStatus;
-import com.mateo.springboot.tienda.models.User;
-import org.springframework.stereotype.Component;
+import com.mateo.springboot.tienda.models.Product;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
-@Component
-public class OrderMapper {
+@Mapper(componentModel = "spring", imports = {LocalDateTime.class, BigDecimal.class, OrderStatus.class})
+public interface OrderMapper {
 
 
-    private final OrderDetailMapper detailMapper;
 
-    public OrderMapper(OrderDetailMapper detailMapper) {
-        this.detailMapper = detailMapper;
-    }
-    // entidad → DTO
+    //DTO
+    @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.username", target = "username")
+    OrderDto toDto(Order order); // llama a toDetailDto internamente
 
-    public  OrderDto toDto(Order order) {
-        if (order == null) return null;
 
-        OrderDto dto = new OrderDto();
-        dto.setId(order.getId());
-        dto.setDate(order.getDate());
-        dto.setUsername(order.getUser().getUsername());
-        dto.setUserId(order.getUser().getId());
-        dto.setTotal(order.getTotal());
-        dto.setStatus(order.getStatus());
+    @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "product.name", target = "productName")
+    OrderDetailDto toDetailDto(OrderDetail detail);
 
-        dto.setDetails(
-                order.getDetails()
-                        .stream()
-                        .map(detailMapper::toDto)
-                        .collect(Collectors.toList())
-        );
+    //ENTITY
 
-        return dto;
-    }
-    // DTO de creación → entidad (sin detalles todavía, porque necesitan los productos)
-    public Order fromCreateDto(OrderCreateDto dto, User user) {
-        if (dto == null) return null;
 
-        Order order = new Order();
-        order.setUser(user);
-        order.setDate(LocalDateTime.now());
-        order.setTotal(java.math.BigDecimal.ZERO); // se recalcula al agregar detalles
-        order.setStatus(OrderStatus.CREATED);
-        return order;
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "details", ignore = true)
+    @Mapping(target = "user", source = "user")
+    @Mapping(target = "date", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "total", expression = "java(BigDecimal.ZERO)")
+    @Mapping(target = "status", expression = "java(OrderStatus.CREATED)")
+    Order fromCreateDto(OrderCreateDto dto);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "product", source = "product")
+    @Mapping(target = "order", source = "order")
+    @Mapping(target = "quantity", source = "dto.quantity")
+    @Mapping(target = "unitPrice", source = "product.price")
+    OrderDetail fromDetailCreateDto(OrderDetailCreateDto dto, Product product, Order order);
+
+
+
+
 }
