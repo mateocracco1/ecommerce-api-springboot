@@ -5,10 +5,7 @@ import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDetailCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDetailDto;
 import com.mateo.springboot.tienda.dto.order.OrderDto;
-import com.mateo.springboot.tienda.models.Order;
-import com.mateo.springboot.tienda.models.OrderDetail;
-import com.mateo.springboot.tienda.models.OrderStatus;
-import com.mateo.springboot.tienda.models.Product;
+import com.mateo.springboot.tienda.models.*;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -39,7 +36,7 @@ public interface OrderMapper {
     @Mapping(target = "date", expression = "java(LocalDateTime.now())")
     @Mapping(target = "total", expression = "java(BigDecimal.ZERO)")
     @Mapping(target = "status", expression = "java(OrderStatus.CREATED)")
-    Order fromCreateDto(OrderCreateDto dto);
+    Order fromCreateDto(OrderCreateDto dto, User user);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "product", source = "product")

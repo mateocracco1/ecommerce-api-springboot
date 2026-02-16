@@ -18,21 +18,18 @@ public interface UserMapper {
 
 
 
-    // Para el Controller (Salida)
     UserDto toDto(User user);
 
-    // Para el Service (Entrada Admin)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
     User toEntity(AdminUserCreateDto dto);
 
-    // Para el Service (Entrada Registro Público)
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "role", ignore = true)
     @Mapping(target = "enabled", constant = "true")
     User toEntity(UserRegisterDto dto);
 
-    // Para el Service (Actualización)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateDto dto);
