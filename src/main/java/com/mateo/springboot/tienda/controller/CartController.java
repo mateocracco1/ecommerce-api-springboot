@@ -1,7 +1,6 @@
 package com.mateo.springboot.tienda.controller;
 
 import com.mateo.springboot.tienda.dto.cart.AddToCartRequest;
-import com.mateo.springboot.tienda.dto.cart.CartItemResponseDTO;
 import com.mateo.springboot.tienda.dto.cart.CartResponseDTO;
 import com.mateo.springboot.tienda.dto.cart.UpdateCartItemRequestDTO;
 import com.mateo.springboot.tienda.mapper.CartMapper;

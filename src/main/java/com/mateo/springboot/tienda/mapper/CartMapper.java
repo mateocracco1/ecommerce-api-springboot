@@ -3,40 +3,25 @@ package com.mateo.springboot.tienda.mapper;
 import com.mateo.springboot.tienda.dto.cart.CartItemResponseDTO;
 import com.mateo.springboot.tienda.dto.cart.CartResponseDTO;
 import com.mateo.springboot.tienda.models.Cart;
-import com.mateo.springboot.tienda.service.cart.CartService;
-import org.springframework.stereotype.Component;
+import com.mateo.springboot.tienda.models.CartItem;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.math.BigDecimal;
-import java.util.List;
 
-@Component
-public class CartMapper {
-
-
-    public CartResponseDTO toDto(Cart cart, BigDecimal subtotal) {
-
-        List<CartItemResponseDTO> items = cart.getItems().stream().map(cartItem -> {
-
-            CartItemResponseDTO dto = new CartItemResponseDTO();
-            dto.setProductId(cartItem.getProduct().getId());
-            dto.setProductName(cartItem.getProduct().getName());
-            dto.setUnitPrice(cartItem.getUnitPrice());
-            dto.setQuantity(cartItem.getQuantity());
-            dto.setTotal(cartItem.getUnitPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity()))
-            );
-
-            return dto;
-        }).toList();
-
-        CartResponseDTO response = new CartResponseDTO();
-
-        response.setCartId(cart.getId());
-        response.setStatus(cart.getStatus());
-        response.setItems(items);
-        response.setSubTotal(subtotal);
-
-        return response;
-    }
+@Mapper(componentModel = "spring", imports = {BigDecimal.class})
+public interface CartMapper{
 
 
+
+    @Mapping(source = "cart.id", target = "cartId")
+    @Mapping(source = "subtotal", target = "subTotal")
+    CartResponseDTO toDto(Cart cart, BigDecimal subtotal);
+
+
+
+    @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "product.name", target = "productName")
+    @Mapping(target = "total", expression = "java(item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))")
+    CartItemResponseDTO toItemDto(CartItem item);
 }

@@ -3,11 +3,9 @@ package com.mateo.springboot.tienda.service.order;
 
 import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDetailCreateDto;
-import com.mateo.springboot.tienda.dto.order.OrderDto;
 import com.mateo.springboot.tienda.exceptions.order.DuplicateOrderProductException;
 import com.mateo.springboot.tienda.exceptions.order.InvalidOrderIdException;
 import com.mateo.springboot.tienda.exceptions.order.OrderNotFoundException;
-import com.mateo.springboot.tienda.mapper.OrderDetailMapper;
 import com.mateo.springboot.tienda.mapper.OrderMapper;
 import com.mateo.springboot.tienda.models.*;
 import com.mateo.springboot.tienda.repository.OrderRepository;
@@ -31,7 +29,7 @@ public class OrderServiceImpl  implements OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderMapper orderMapper;
-    private final OrderDetailMapper orderDetailMapper;
+
     private final UserService userService;
     private final ProductService productService;
     private  final CartService cartService;
@@ -41,12 +39,12 @@ public class OrderServiceImpl  implements OrderService {
 
 
     public OrderServiceImpl(OrderRepository orderRepository, OrderMapper orderMapper,
-                            OrderDetailMapper orderDetailMapper,
+
                             UserService userService,
                             ProductService productService, CartService cartService) {
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
-        this.orderDetailMapper = orderDetailMapper;
+
         this.userService = userService;
         this.productService = productService;
         this.cartService = cartService;
@@ -74,7 +72,7 @@ public class OrderServiceImpl  implements OrderService {
 
         User user = userService.findUserOrThrow(userId);
 
-        Order order = orderMapper.fromCreateDto(dto);
+        Order order = orderMapper.fromCreateDto(dto,user);
 
         List<OrderDetail> details = new ArrayList<>();
         Set<Long> productIds = new HashSet<>();
@@ -89,7 +87,7 @@ public class OrderServiceImpl  implements OrderService {
 
             Product product = productService.findProductOrThrow(detailDto.getProductId());
 
-            OrderDetail detail = orderDetailMapper.fromCreateDto(detailDto, product, order);
+            OrderDetail detail = orderMapper.fromDetailCreateDto(detailDto, product, order);
             detail.setUnitPrice(product.getPrice());
             details.add(detail);
         }
