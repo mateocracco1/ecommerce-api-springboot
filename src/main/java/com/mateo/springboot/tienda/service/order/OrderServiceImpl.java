@@ -136,7 +136,7 @@ public class OrderServiceImpl  implements OrderService {
         Cart cart = cartService.getActiveCart(user);
 
         if (cart.getItems().isEmpty()) {
-            throw new RuntimeException("Cannot checkout an empty cart"); // Crear  excepción
+            throw new RuntimeException("Cannot checkout an empty cart"); // Crear  excepción personalzida
         }
         Order order = new Order();
         order.setUser(user);
@@ -178,4 +178,10 @@ public class OrderServiceImpl  implements OrderService {
         return order.getUser().getId().equals(userId);
     }
 
+
+    //Mi orders
+    @Override
+    public List<Order> findOrdersByUserId(Long userId) {
+        return orderRepository.findByUserId(userId);
+    }
 }

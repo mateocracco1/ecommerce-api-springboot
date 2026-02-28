@@ -45,6 +45,10 @@ public class Product {
         this.stock = stock;
     }
 
+    //para test
+    public Product(long id, String keyboard, BigDecimal bigDecimal, int i, Category category) {
+    }
+
     public Long getId() {
         return id;
     }
