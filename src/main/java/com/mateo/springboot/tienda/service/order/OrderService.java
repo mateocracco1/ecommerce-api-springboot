@@ -19,5 +19,5 @@ public interface OrderService {
 
 
     Order checkout(Long idUser);
-
+    List<Order> findOrdersByUserId(Long userId);
 }

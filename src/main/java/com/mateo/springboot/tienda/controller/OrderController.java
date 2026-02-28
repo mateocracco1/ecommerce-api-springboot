@@ -65,10 +65,22 @@ public class OrderController {
     }
 
 
-    //falta ckeckout
+    @PostMapping("/checkout")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<OrderDto> checkout(@AuthenticationPrincipal CustomUserDetails user) {
+        Order newOrder = orderService.checkout(user.getId());
+        OrderDto responseDto = orderMapper.toDto(newOrder);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+    }
 
-    //falta ver mis ordenes con metodo //isOwner en serivce
 
 
 
+
+    @GetMapping("/my-orders")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<List<OrderDto>> getMyOrders(@AuthenticationPrincipal CustomUserDetails user ){
+        List<OrderDto> orderDtos= orderService.findOrdersByUserId(  user.getId()).stream().map(orderMapper::toDto).toList();
+        return  ResponseEntity.ok(orderDtos) ;
+    }
 }
