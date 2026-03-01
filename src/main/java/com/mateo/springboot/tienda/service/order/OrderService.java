@@ -4,6 +4,8 @@ import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDto;
 import com.mateo.springboot.tienda.models.Order;
 import com.mateo.springboot.tienda.models.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -19,5 +21,5 @@ public interface OrderService {
 
 
     Order checkout(Long idUser);
-    List<Order> findOrdersByUserId(Long userId);
+    Page<Order> findOrdersByUserId(Long userId, Pageable pageable);
 }

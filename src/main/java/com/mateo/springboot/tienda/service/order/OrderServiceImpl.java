@@ -15,6 +15,8 @@ import com.mateo.springboot.tienda.service.user.UserService;
 import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -181,7 +183,7 @@ public class OrderServiceImpl  implements OrderService {
 
     //Mi orders
     @Override
-    public List<Order> findOrdersByUserId(Long userId) {
-        return orderRepository.findByUserId(userId);
+    public Page<Order> findOrdersByUserId(Long userId, Pageable pageable) {
+        return orderRepository.findByUserId(userId,  pageable);
     }
 }
