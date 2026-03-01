@@ -9,6 +9,8 @@ import com.mateo.springboot.tienda.service.order.OrderService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -79,8 +81,8 @@ public class OrderController {
 
     @GetMapping("/my-orders")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<List<OrderDto>> getMyOrders(@AuthenticationPrincipal CustomUserDetails user ){
-        List<OrderDto> orderDtos= orderService.findOrdersByUserId(  user.getId()).stream().map(orderMapper::toDto).toList();
-        return  ResponseEntity.ok(orderDtos) ;
+    public ResponseEntity<Page<OrderDto>> getMyOrders(@AuthenticationPrincipal CustomUserDetails user, Pageable pageable ){
+        Page<Order> ordersPage = orderService.findOrdersByUserId(user.getId(), pageable);
+        return  ResponseEntity.ok(ordersPage.map(orderMapper::toDto)) ;
     }
 }
