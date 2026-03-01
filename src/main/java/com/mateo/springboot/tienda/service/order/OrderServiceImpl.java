@@ -180,10 +180,13 @@ public class OrderServiceImpl  implements OrderService {
         return order.getUser().getId().equals(userId);
     }
 
-
-    //Mi orders
     @Override
     public Page<Order> findOrdersByUserId(Long userId, Pageable pageable) {
         return orderRepository.findByUserId(userId,  pageable);
+    }
+
+    @Override
+    public Page<Order> findOrdersByUserIdAndStatus(Long userId, String status, Pageable pageable) {
+        return orderRepository.findByUserIdAndStatus(userId, status, pageable);
     }
 }

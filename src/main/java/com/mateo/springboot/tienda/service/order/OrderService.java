@@ -22,4 +22,6 @@ public interface OrderService {
 
     Order checkout(Long idUser);
     Page<Order> findOrdersByUserId(Long userId, Pageable pageable);
+    Page<Order> findOrdersByUserIdAndStatus(Long userId, String status, Pageable pageable);
+
 }

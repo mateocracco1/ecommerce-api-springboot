@@ -15,5 +15,5 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order,Long> {
 
     Page<Order> findByUserId(Long userId, Pageable pageable);
-
+    Page<Order> findByUserIdAndStatus(Long userId, String status, Pageable pageable);
 }

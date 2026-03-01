@@ -85,4 +85,14 @@ public class OrderController {
         Page<Order> ordersPage = orderService.findOrdersByUserId(user.getId(), pageable);
         return  ResponseEntity.ok(ordersPage.map(orderMapper::toDto)) ;
     }
+
+    @GetMapping("/my-purchases")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<Page<OrderDto>> getMyPurchases(@AuthenticationPrincipal CustomUserDetails user, Pageable pageable) {
+
+        Page<Order> completedPurchases = orderService.findOrdersByUserIdAndStatus(user.getId(), "COMPLETED", pageable);
+        Page<OrderDto> orderDtosPage = completedPurchases.map(orderMapper::toDto);
+        return ResponseEntity.ok(orderDtosPage);
+    }
+
 }
