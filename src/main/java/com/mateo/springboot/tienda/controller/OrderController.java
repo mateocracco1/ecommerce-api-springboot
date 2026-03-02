@@ -4,6 +4,7 @@ import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDto;
 import com.mateo.springboot.tienda.mapper.OrderMapper;
 import com.mateo.springboot.tienda.models.Order;
+import com.mateo.springboot.tienda.models.OrderStatus;
 import com.mateo.springboot.tienda.security.CustomUserDetails;
 import com.mateo.springboot.tienda.service.order.OrderService;
 import jakarta.validation.Valid;
@@ -75,10 +76,6 @@ public class OrderController {
         return  ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
 
-
-
-
-
     @GetMapping("/my-orders")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<Page<OrderDto>> getMyOrders(@AuthenticationPrincipal CustomUserDetails user, Pageable pageable ){
@@ -93,6 +90,23 @@ public class OrderController {
         Page<Order> completedPurchases = orderService.findOrdersByUserIdAndStatus(user.getId(), "COMPLETED", pageable);
         Page<OrderDto> orderDtosPage = completedPurchases.map(orderMapper::toDto);
         return ResponseEntity.ok(orderDtosPage);
+    }
+
+    //Detalle de la Orden ver
+
+    @PutMapping("/cancel-Order/{id}")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public ResponseEntity<OrderDto>cancelOrder(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user ) {
+        Order order = orderService.cancelOrder(id , user.getId());
+        return   ResponseEntity.ok(orderMapper.toDto(order));
+    }
+
+    @PutMapping("/{id}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus newStatus) {
+
+        Order order = orderService.updateOrderStatus(id, newStatus);
+        return ResponseEntity.ok(orderMapper.toDto(order));
     }
 
 }

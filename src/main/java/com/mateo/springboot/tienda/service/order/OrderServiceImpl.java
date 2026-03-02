@@ -3,9 +3,8 @@ package com.mateo.springboot.tienda.service.order;
 
 import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDetailCreateDto;
-import com.mateo.springboot.tienda.exceptions.order.DuplicateOrderProductException;
-import com.mateo.springboot.tienda.exceptions.order.InvalidOrderIdException;
-import com.mateo.springboot.tienda.exceptions.order.OrderNotFoundException;
+import com.mateo.springboot.tienda.exceptions.BusinessException;
+import com.mateo.springboot.tienda.exceptions.order.*;
 import com.mateo.springboot.tienda.mapper.OrderMapper;
 import com.mateo.springboot.tienda.models.*;
 import com.mateo.springboot.tienda.repository.OrderRepository;
@@ -17,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -188,5 +188,38 @@ public class OrderServiceImpl  implements OrderService {
     @Override
     public Page<Order> findOrdersByUserIdAndStatus(Long userId, String status, Pageable pageable) {
         return orderRepository.findByUserIdAndStatus(userId, status, pageable);
+    }
+
+    //cancelar order - CANCELLED
+
+
+    @Override
+    @Transactional // Importante para asegurar la persistencia
+    public Order cancelOrder(Long orderId , Long userId) {
+        Order order = findOrderById(orderId);
+
+        if (!order.getUser().getId().equals(userId)) {
+
+            throw new UnauthorizedOrderException();
+        }
+
+        if (order.getStatus() == OrderStatus.SHIPPED || order.getStatus() == OrderStatus.COMPLETED
+                || order.getStatus() == OrderStatus.CANCELLED) {
+            throw new IllegalOrderStateException();
+        }
+        order.setStatus(OrderStatus.CANCELLED);
+        return orderRepository.save(order);
+    }
+
+    @Override
+    @Transactional
+    public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
+
+        Order order = findOrderById(orderId);
+        if (order.getStatus() == OrderStatus.CANCELLED) {
+            throw new InvalidateTranstionException();
+        }
+        order.setStatus(newStatus);
+        return orderRepository.save(order);
     }
 }
