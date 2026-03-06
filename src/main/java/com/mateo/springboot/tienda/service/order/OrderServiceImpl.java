@@ -190,11 +190,11 @@ public class OrderServiceImpl  implements OrderService {
         return orderRepository.findByUserIdAndStatus(userId, status, pageable);
     }
 
-    //cancelar order - CANCELLED
+
 
 
     @Override
-    @Transactional // Importante para asegurar la persistencia
+    @Transactional
     public Order cancelOrder(Long orderId , Long userId) {
         Order order = findOrderById(orderId);
 
@@ -207,6 +207,13 @@ public class OrderServiceImpl  implements OrderService {
                 || order.getStatus() == OrderStatus.CANCELLED) {
             throw new IllegalOrderStateException();
         }
+        for (OrderDetail detail : order.getDetails()) {
+            productService.increaseStock(
+                    detail.getProduct().getId(),
+                    detail.getQuantity()
+            );
+        }
+
         order.setStatus(OrderStatus.CANCELLED);
         return orderRepository.save(order);
     }
