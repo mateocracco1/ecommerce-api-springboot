@@ -130,7 +130,13 @@ public class ProductServiceImpl implements  ProductService{
             log.warn("Invalid stock change {} for product id {}", quantityChange, productId);
             throw new InvalidStockQuantityException(quantityChange);
             }
-        Product product =findProductOrThrow(productId);
+
+        Product product = productRepository.findByIdForUpdate(productId)
+                .orElseThrow(() -> {
+                    log.warn("Product not found with id {}", productId);
+                    return new ProductNotFoundException(productId);
+                });
+
 
         long total = (long) product.getStock() + quantityChange;
         if (total > Integer.MAX_VALUE) {
