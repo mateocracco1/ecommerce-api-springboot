@@ -2,11 +2,12 @@ package com.mateo.springboot.tienda.models;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Entity
 @Table(name = "products")
-public class Product {
+public class Product implements Serializable {
 
 
     @Id
@@ -27,6 +28,9 @@ public class Product {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
+
+    // control version
+    private static final long serialVersionUID = 1L;
 
     public Product() {
     }

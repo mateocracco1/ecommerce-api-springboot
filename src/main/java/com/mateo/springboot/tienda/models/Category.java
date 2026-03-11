@@ -2,11 +2,12 @@ package com.mateo.springboot.tienda.models;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
 @Table(name = "categorys")
-public class Category {
+public class Category  implements Serializable {
 
 
 
@@ -17,9 +18,6 @@ public class Category {
     private String name;
     private String description;
 
-    // Relación inversa  bidireccional
-    @OneToMany(mappedBy = "category")
-    private List<Product> products;
 
     public Category() {
     }
@@ -30,13 +28,7 @@ public class Category {
         this.description = description;
     }
 
-    public List<Product> getProducts() {
-        return products;
-    }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
 
     public Long getId() {
         return id;

@@ -14,6 +14,8 @@ import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -37,6 +39,7 @@ public class ProductServiceImpl implements  ProductService{
         this.productMapper = productMapper;
     }
 
+    @Cacheable(value = "products")
     @Override
     public List<Product> findAllProducts() {
         return productRepository.findAll();
@@ -49,6 +52,8 @@ public class ProductServiceImpl implements  ProductService{
         return product;
     }
 
+    @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     @Override
     public Product createProduct(ProductCreateDto dto) {
 
@@ -81,6 +86,8 @@ public class ProductServiceImpl implements  ProductService{
         return savedProduct;
     }
 
+    @Transactional
+    @CacheEvict(value = "products", allEntries = true)
     @Override
     public Product updateProduct(Long id,ProductUpdateDto dto) {
 
@@ -110,6 +117,7 @@ public class ProductServiceImpl implements  ProductService{
         return updatedProduct ;
     }
 
+    @CacheEvict(value = "products", allEntries = true)
     @Transactional
     @Override
     public void deleteProductById(Long id) {
@@ -121,7 +129,7 @@ public class ProductServiceImpl implements  ProductService{
 
     //-----------------stock product-----------------
 
-
+    @CacheEvict(value = "products", allEntries = true)
     @Transactional
     @Override
     public void adjustStock(Long productId, int quantityChange) {
