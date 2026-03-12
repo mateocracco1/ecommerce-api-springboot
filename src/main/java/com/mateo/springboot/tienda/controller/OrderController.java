@@ -10,6 +10,7 @@ import com.mateo.springboot.tienda.service.order.OrderService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -78,14 +79,14 @@ public class OrderController {
 
     @GetMapping("/my-orders")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<Page<OrderDto>> getMyOrders(@AuthenticationPrincipal CustomUserDetails user, Pageable pageable ){
+    public ResponseEntity<Page<OrderDto>> getMyOrders(@AuthenticationPrincipal CustomUserDetails user,@ParameterObject Pageable pageable ){
         Page<Order> ordersPage = orderService.findOrdersByUserId(user.getId(), pageable);
         return  ResponseEntity.ok(ordersPage.map(orderMapper::toDto)) ;
     }
 
     @GetMapping("/my-purchases")
     @PreAuthorize("hasRole('CUSTOMER')")
-    public ResponseEntity<Page<OrderDto>> getMyPurchases(@AuthenticationPrincipal CustomUserDetails user, Pageable pageable) {
+    public ResponseEntity<Page<OrderDto>> getMyPurchases(@AuthenticationPrincipal CustomUserDetails user,@ParameterObject Pageable pageable) {
 
         Page<Order> completedPurchases = orderService.findOrdersByUserIdAndStatus(user.getId(), "COMPLETED", pageable);
         Page<OrderDto> orderDtosPage = completedPurchases.map(orderMapper::toDto);
