@@ -3,6 +3,7 @@ package com.mateo.springboot.tienda.service.order;
 
 import com.mateo.springboot.tienda.dto.order.OrderCreateDto;
 import com.mateo.springboot.tienda.dto.order.OrderDetailCreateDto;
+import com.mateo.springboot.tienda.dto.order.OrderDto;
 import com.mateo.springboot.tienda.exceptions.BusinessException;
 import com.mateo.springboot.tienda.exceptions.order.*;
 import com.mateo.springboot.tienda.mapper.OrderMapper;
@@ -54,21 +55,26 @@ public class OrderServiceImpl  implements OrderService {
 
 
     @Override
-    public List<Order> findAllOrders() {
-        return orderRepository.findAll();
+    public List<OrderDto> findAllOrders() {
+        return orderRepository.findAll().stream().map(orderMapper::toDto).toList();
     }
 
     @Override
-    public Order findOrderById(Long orderId) {
+    public OrderDto findOrderById(Long orderId) {
         Order order = findOrderOrThrow(orderId);
-        return order;
+        return orderMapper.toDto(order);
+    }
+
+    private Order findOrderEntity(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new OrderNotFoundException(orderId));
     }
 
 
     //Para compra rapida/now
     @Override
     @Transactional
-    public Order createOrder(OrderCreateDto dto , Long userId) {
+    public OrderDto createOrder(OrderCreateDto dto , Long userId) {
 
         log.info("Attempting to create order for userId {}", userId);
 
@@ -100,7 +106,7 @@ public class OrderServiceImpl  implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
         log.info("Order created  successfully with id {}", savedOrder.getId());
-        return savedOrder;
+        return orderMapper.toDto(savedOrder);
     }
 
     @Override
@@ -132,7 +138,7 @@ public class OrderServiceImpl  implements OrderService {
 
     @Transactional
     @Override
-    public Order checkout(Long  idUser) {
+    public OrderDto checkout(Long  idUser) {
 
         User user = userService.findUserOrThrow(idUser);
         Cart cart = cartService.getActiveCart(user);
@@ -168,7 +174,7 @@ public class OrderServiceImpl  implements OrderService {
         Order save = orderRepository.save(order);
         cartService.completeCart(cart);
 
-        return save;
+        return orderMapper.toDto(save);
     }
 
 
@@ -181,13 +187,15 @@ public class OrderServiceImpl  implements OrderService {
     }
 
     @Override
-    public Page<Order> findOrdersByUserId(Long userId, Pageable pageable) {
-        return orderRepository.findByUserId(userId,  pageable);
+    public Page<OrderDto> findOrdersByUserId(Long userId, Pageable pageable) {
+        Page<Order> ordersPage = orderRepository.findByUserId(userId, pageable);
+        return ordersPage.map(orderMapper::toDto);
     }
 
     @Override
-    public Page<Order> findOrdersByUserIdAndStatus(Long userId, String status, Pageable pageable) {
-        return orderRepository.findByUserIdAndStatus(userId, status, pageable);
+    public Page<OrderDto> findOrdersByUserIdAndStatus(Long userId, String status, Pageable pageable) {
+        Page<Order> orderPage = orderRepository.findByUserIdAndStatus(userId,status,pageable);
+        return orderPage.map(orderMapper::toDto);
     }
 
 
@@ -195,8 +203,9 @@ public class OrderServiceImpl  implements OrderService {
 
     @Override
     @Transactional
-    public Order cancelOrder(Long orderId , Long userId) {
-        Order order = findOrderById(orderId);
+    public OrderDto cancelOrder(Long orderId , Long userId) {
+
+        Order order = findOrderEntity(orderId);
 
         if (!order.getUser().getId().equals(userId)) {
 
@@ -215,18 +224,18 @@ public class OrderServiceImpl  implements OrderService {
         }
 
         order.setStatus(OrderStatus.CANCELLED);
-        return orderRepository.save(order);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 
     @Override
     @Transactional
-    public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
+    public OrderDto updateOrderStatus(Long orderId, OrderStatus newStatus) {
 
-        Order order = findOrderById(orderId);
+        Order order = findOrderEntity(orderId);
         if (order.getStatus() == OrderStatus.CANCELLED) {
             throw new InvalidateTranstionException();
         }
         order.setStatus(newStatus);
-        return orderRepository.save(order);
+        return orderMapper.toDto(orderRepository.save(order));
     }
 }

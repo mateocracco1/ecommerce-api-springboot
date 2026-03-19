@@ -39,13 +39,13 @@ public class OrderController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<OrderDto>>getOrders(){
-        return ResponseEntity.ok(orderService.findAllOrders().stream().map(orderMapper::toDto).toList());
+        return ResponseEntity.ok(orderService.findAllOrders());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or @orderSecurity.isOwner(#id, authentication.principal.id)")
     public ResponseEntity<OrderDto>getOrderById(@PathVariable Long id){
-        return ResponseEntity.ok(orderMapper.toDto(orderService.findOrderById(id)));
+        return ResponseEntity.ok(orderService.findOrderById(id));
     }
 
     @PostMapping
@@ -54,10 +54,7 @@ public class OrderController {
             ,@AuthenticationPrincipal CustomUserDetails principal) { // principal obtengo id user
 
         log.info("POST/api/orders/{} - Creating Product for  user ", principal.getId());
-        Order order = orderService.createOrder(orderCreateDto,principal.getId());
-        OrderDto responseDto = orderMapper.toDto(order);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(orderCreateDto,principal.getId()));
     }
 
     @DeleteMapping("/{id}")
@@ -69,28 +66,25 @@ public class OrderController {
     }
 
 
+
+
+
     @PostMapping("/checkout")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<OrderDto> checkout(@AuthenticationPrincipal CustomUserDetails user) {
-        Order newOrder = orderService.checkout(user.getId());
-        OrderDto responseDto = orderMapper.toDto(newOrder);
-        return  ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(orderService.checkout(user.getId()));
     }
 
     @GetMapping("/my-orders")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<Page<OrderDto>> getMyOrders(@AuthenticationPrincipal CustomUserDetails user,@ParameterObject Pageable pageable ){
-        Page<Order> ordersPage = orderService.findOrdersByUserId(user.getId(), pageable);
-        return  ResponseEntity.ok(ordersPage.map(orderMapper::toDto)) ;
+        return  ResponseEntity.ok(orderService.findOrdersByUserId(user.getId(), pageable)) ;
     }
 
     @GetMapping("/my-purchases")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<Page<OrderDto>> getMyPurchases(@AuthenticationPrincipal CustomUserDetails user,@ParameterObject Pageable pageable) {
-
-        Page<Order> completedPurchases = orderService.findOrdersByUserIdAndStatus(user.getId(), "COMPLETED", pageable);
-        Page<OrderDto> orderDtosPage = completedPurchases.map(orderMapper::toDto);
-        return ResponseEntity.ok(orderDtosPage);
+        return ResponseEntity.ok(orderService.findOrdersByUserIdAndStatus(user.getId(), "COMPLETED", pageable));
     }
 
     //Detalle de la Orden ver
@@ -98,16 +92,13 @@ public class OrderController {
     @PutMapping("/cancel-Order/{id}")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<OrderDto>cancelOrder(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user ) {
-        Order order = orderService.cancelOrder(id , user.getId());
-        return   ResponseEntity.ok(orderMapper.toDto(order));
+        return   ResponseEntity.ok(orderService.cancelOrder(id , user.getId()));
     }
 
     @PutMapping("/{id}/status")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<OrderDto> updateOrderStatus(@PathVariable Long id, @RequestParam OrderStatus newStatus) {
-
-        Order order = orderService.updateOrderStatus(id, newStatus);
-        return ResponseEntity.ok(orderMapper.toDto(order));
+        return ResponseEntity.ok(orderService.updateOrderStatus(id, newStatus));
     }
 
 }

@@ -34,30 +34,28 @@ public class ProductController {
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     public ResponseEntity<List<ProductDto>>getProducts(){
-        return  ResponseEntity.ok(productService.findAllProducts().stream().map(productMapper::toDto).toList());
+        return  ResponseEntity.ok(productService.findAllProducts());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     public  ResponseEntity<ProductDto>getProductById(@PathVariable Long id){
         log.info("GET /api/products/{} - Fetching product ", id);
-        return ResponseEntity.ok(productMapper.toDto(productService.findProductById(id)));
+        return ResponseEntity.ok(productService.findProductById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDto>createProduct(@Valid @RequestBody ProductCreateDto productCreateDto){
         log.info("POST/api/products/{} - Creating Product", productCreateDto.getName());
-        ProductDto productDto = productMapper.toDto(productService.createProduct(productCreateDto));
-        return  ResponseEntity.status(HttpStatus.CREATED).body(productDto);
+        return  ResponseEntity.status(HttpStatus.CREATED).body(productService.createProduct(productCreateDto));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ProductDto> updateProduct( @PathVariable Long id,@Valid @RequestBody ProductUpdateDto productUpdateDto) {
         log.info("PUT /api/products/{} - Updating product", productUpdateDto.getName());
-        ProductDto updatedProduct = productMapper.toDto(productService.updateProduct(id, productUpdateDto));
-        return ResponseEntity.ok(updatedProduct);
+        return ResponseEntity.ok(productService.updateProduct(id, productUpdateDto));
     }
 
     @DeleteMapping("/{id}")
@@ -66,6 +64,20 @@ public class ProductController {
         log.info("DELETE /api/prodcuts/{} - Deleting products", id);
         productService.deleteProductById(id);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/{id}/stock")
+    public ResponseEntity<Integer> getProductStockForView(@PathVariable Long id) {
+        ProductDto productDto = productService.findProductById(id);
+        return ResponseEntity.ok(productDto.getStock());
+    }
+
+    @GetMapping("/{id}/check-stock")
+    public ResponseEntity<Boolean> isStockAvailableForView(@PathVariable Long id, @RequestParam int quantity) {
+        ProductDto productDto = productService.findProductById(id);
+        boolean isAvailable = productDto.getStock() >= quantity;
+        return ResponseEntity.ok(isAvailable);
     }
 
 }

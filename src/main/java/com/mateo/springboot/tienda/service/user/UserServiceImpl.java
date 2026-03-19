@@ -40,18 +40,18 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<User> findAllUsers() {
-        return userRepository.findAll();
+    public List<UserDto> findAllUsers() {
+        return userRepository.findAll().stream().map(userMapper::toDto).toList();
     }
 
     @Override
-    public User findUserById(Long id) {
+    public UserDto findUserById(Long id) {
         User user = findUserOrThrow(id);
-        return user;
+        return userMapper.toDto(user);
     }
 
     @Override
-    public User createUserAsAdmin(AdminUserCreateDto userCreateDto) {  // admin
+    public UserDto createUserAsAdmin(AdminUserCreateDto userCreateDto) {  // admin
 
         log.info("Attempting to create user as ADMIN with email: {}", userCreateDto.getEmail());
 
@@ -71,11 +71,11 @@ public class UserServiceImpl implements UserService{
         user.setPassword(passwordEncoder.encode((userCreateDto.getPassword())));
         User save = userRepository.save(user);
         log.info("Admin created new user successfully with id {}", save.getId());
-        return save;
+        return userMapper.toDto(user);
     }
 
     @Override
-    public User register(UserRegisterDto dto) {   //register publico
+    public UserDto register(UserRegisterDto dto) {   //register publico
         log.info("Trying to register a user with email: {}", dto.getEmail());
 
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -97,11 +97,11 @@ public class UserServiceImpl implements UserService{
 
         User saved = userRepository.save(user);
         log.info("User registered successfully with id {}", saved.getId());
-        return saved;
+        return userMapper.toDto(saved);
     }
 
     @Override
-    public User updateUser(Long id, UserUpdateDto userUpdateDto) {
+    public UserDto updateUser(Long id, UserUpdateDto userUpdateDto) {
 
         log.info("Attempting to update user with id: {}", id);
 
@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService{
         }
         User updated = userRepository.save(user);
         log.info("User updated successfully with id: {}", updated.getId());
-        return updated;
+        return userMapper.toDto(updated);
     }
 
 

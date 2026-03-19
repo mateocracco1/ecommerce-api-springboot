@@ -7,7 +7,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "categorys")
-public class Category  implements Serializable {
+public class Category  {
 
 
 
