@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
+
+
 
 @Service
 public class ProductServiceImpl implements  ProductService{
@@ -43,7 +46,7 @@ public class ProductServiceImpl implements  ProductService{
     @Cacheable(value = "product_list")
     @Override
     public List<ProductDto> findAllProducts() {
-        return productRepository.findAll().stream().map(productMapper::toDto).toList();
+        return productRepository.findAll().stream().map(productMapper::toDto).collect(Collectors.toList());
     }
 
     @Cacheable(value = "product_details", key = "#id")
@@ -137,13 +140,9 @@ public class ProductServiceImpl implements  ProductService{
 
     //-----------------stock product-----------------
 
-    @Transactional
-    @Caching(evict = {
-            @CacheEvict(value = "product_list", allEntries = true),
-            @CacheEvict(value = "product_details", key = "#productId")
-    })
+
     @Override
-    public void adjustStock(Long productId, int quantityChange) {
+    public   void adjustStock(Long productId, int quantityChange) {
         log.info("Attempting to adjustStock  product with id: {}", productId);
         if(quantityChange == 0) {
             log.warn("Invalid stock change {} for product id {}", quantityChange, productId);
@@ -173,6 +172,11 @@ public class ProductServiceImpl implements  ProductService{
 
     }
 
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "product_list", allEntries = true),
+            @CacheEvict(value = "product_details", key = "#productId")
+    })
     @Override
     public void increaseStock(Long productId, int quantity) {
 
@@ -185,6 +189,11 @@ public class ProductServiceImpl implements  ProductService{
 
     }
 
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "product_list", allEntries = true),
+            @CacheEvict(value = "product_details", key = "#productId")
+    })
     @Override
     public void decreaseStock(Long productId, int quantity) {
         log.info("Attempting to decreaseStock  product with id: {}", productId);
