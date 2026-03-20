@@ -16,10 +16,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
+
+
 
 @Service
 public class ProductServiceImpl implements  ProductService{
@@ -39,23 +43,24 @@ public class ProductServiceImpl implements  ProductService{
         this.productMapper = productMapper;
     }
 
-    @Cacheable(value = "products")
+    @Cacheable(value = "product_list")
     @Override
-    public List<Product> findAllProducts() {
-        return productRepository.findAll();
+    public List<ProductDto> findAllProducts() {
+        return productRepository.findAll().stream().map(productMapper::toDto).collect(Collectors.toList());
     }
 
+    @Cacheable(value = "product_details", key = "#id")
     @Override
-    public Product findProductById(Long id) {
+    public ProductDto findProductById(Long id) {
         log.info("Request to find product by id {}", id);
         Product product = findProductOrThrow(id);
-        return product;
+        return productMapper.toDto(product);
     }
 
     @Transactional
-    @CacheEvict(value = "products", allEntries = true)
+    @CacheEvict(value = {"product_list", "product_details"}, allEntries = true)
     @Override
-    public Product createProduct(ProductCreateDto dto) {
+    public ProductDto createProduct(ProductCreateDto dto) {
 
         log.info("Attempting to create product  with name: {}", dto.getName());
 
@@ -83,13 +88,16 @@ public class ProductServiceImpl implements  ProductService{
 
         Product savedProduct = productRepository.save(productMapper.toEntity(dto,category));
         log.info("Product created  successfully with id {}", savedProduct.getId());
-        return savedProduct;
+        return productMapper.toDto(savedProduct);
     }
 
     @Transactional
-    @CacheEvict(value = "products", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "product_list", allEntries = true),
+            @CacheEvict(value = "product_details", key = "#id")
+    })
     @Override
-    public Product updateProduct(Long id,ProductUpdateDto dto) {
+    public ProductDto updateProduct(Long id,ProductUpdateDto dto) {
 
         log.info("Attempting to update product with id: {}", id);
         Product product =findProductOrThrow(id);
@@ -114,10 +122,13 @@ public class ProductServiceImpl implements  ProductService{
         Product updatedProduct = productRepository.save(product);
         log.info("Product updated successfully with id: {}", id);
 
-        return updatedProduct ;
+        return productMapper.toDto(updatedProduct) ;
     }
 
-    @CacheEvict(value = "products", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "product_list", allEntries = true),
+            @CacheEvict(value = "product_details", key = "#id")
+    })
     @Transactional
     @Override
     public void deleteProductById(Long id) {
@@ -129,10 +140,9 @@ public class ProductServiceImpl implements  ProductService{
 
     //-----------------stock product-----------------
 
-    @CacheEvict(value = "products", allEntries = true)
-    @Transactional
+
     @Override
-    public void adjustStock(Long productId, int quantityChange) {
+    public   void adjustStock(Long productId, int quantityChange) {
         log.info("Attempting to adjustStock  product with id: {}", productId);
         if(quantityChange == 0) {
             log.warn("Invalid stock change {} for product id {}", quantityChange, productId);
@@ -162,6 +172,11 @@ public class ProductServiceImpl implements  ProductService{
 
     }
 
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "product_list", allEntries = true),
+            @CacheEvict(value = "product_details", key = "#productId")
+    })
     @Override
     public void increaseStock(Long productId, int quantity) {
 
@@ -174,6 +189,11 @@ public class ProductServiceImpl implements  ProductService{
 
     }
 
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "product_list", allEntries = true),
+            @CacheEvict(value = "product_details", key = "#productId")
+    })
     @Override
     public void decreaseStock(Long productId, int quantity) {
         log.info("Attempting to decreaseStock  product with id: {}", productId);
@@ -208,8 +228,8 @@ public class ProductServiceImpl implements  ProductService{
     }
 
     @Override
-    public List<Product> listLowStockProducts() {
-        return  productRepository.findByStockLessThanEqual(lowStockThreshold);
+    public List<ProductDto> listLowStockProducts() {
+        return  productRepository.findByStockLessThanEqual(lowStockThreshold).stream().map(productMapper::toDto).toList();
     }
 
     @Override

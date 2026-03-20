@@ -6,21 +6,17 @@ import com.mateo.springboot.tienda.dto.user.AdminUserCreateDto;
 import com.mateo.springboot.tienda.dto.user.UserDto;
 import com.mateo.springboot.tienda.dto.user.UserRegisterDto;
 import com.mateo.springboot.tienda.dto.user.UserUpdateDto;
-import com.mateo.springboot.tienda.models.Product;
 import com.mateo.springboot.tienda.models.User;
 
 import java.util.List;
 
 public interface UserService{
 
-    List<User>findAllUsers();
-    User findUserById(Long id);
-    User createUserAsAdmin(AdminUserCreateDto userCreateDto);
-    User updateUser(Long id, UserUpdateDto userUpdateDto);// actualiza un usuario
+    List<UserDto>findAllUsers();
+    UserDto findUserById(Long id);
+    UserDto createUserAsAdmin(AdminUserCreateDto userCreateDto);
+    UserDto updateUser(Long id, UserUpdateDto userUpdateDto);
     void deleteUserById(Long id);
-    User register(UserRegisterDto dto);
+    UserDto register(UserRegisterDto dto);
     User findUserOrThrow(Long userId);
-
-
-
 }

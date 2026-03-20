@@ -13,20 +13,20 @@ import java.util.List;
 public interface OrderService {
 
 
-    List<Order>findAllOrders();
-    Order findOrderById(Long orderId);
-    Order createOrder(OrderCreateDto dto, Long userId);
+    List<OrderDto>findAllOrders();
+    OrderDto findOrderById(Long orderId);
+    OrderDto createOrder(OrderCreateDto dto, Long userId);
     void  deleteOrder(Long orderId);
 
     boolean isOrderOwner(Long orderId, Long userId);
 
 
-    Order checkout(Long idUser);
-    Page<Order> findOrdersByUserId(Long userId, Pageable pageable);
-    Page<Order> findOrdersByUserIdAndStatus(Long userId, String status, Pageable pageable);
+    OrderDto checkout(Long idUser);
+    Page<OrderDto> findOrdersByUserId(Long userId, Pageable pageable);
+    Page<OrderDto> findOrdersByUserIdAndStatus(Long userId, String status, Pageable pageable);
 
-    Order cancelOrder(Long orderId,Long userId);
-    Order updateOrderStatus(Long orderId, OrderStatus newStatus);
+    OrderDto cancelOrder(Long orderId,Long userId);
+    OrderDto updateOrderStatus(Long orderId, OrderStatus newStatus);
 
 
 }

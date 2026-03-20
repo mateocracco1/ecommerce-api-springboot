@@ -39,39 +39,35 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<UserDto> getMyInfo(
             @AuthenticationPrincipal CustomUserDetails userDetails) {
-        UserDto userDto = userMapper.toDto(userService.findUserById(userDetails.getId()));
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(userService.findUserById(userDetails.getId()));
     }
 
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<UserDto>> getUsers(){
-        return ResponseEntity.ok(userService.findAllUsers().stream().map(userMapper::toDto).toList());
+        return ResponseEntity.ok(userService.findAllUsers());
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public  ResponseEntity<UserDto> geUsertById(@PathVariable Long id){
         log.info("GET /api/users/{} - Fetching user", id);
-        UserDto userDto = userMapper.toDto(userService.findUserById(id));
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(userService.findUserById(id));
     }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UserDto>createUserAsAdmin(@Valid  @RequestBody AdminUserCreateDto userCreateDto){
         log.info("POST /api/users/{} - Creating user as admin", userCreateDto.getUsername());
-        UserDto user = userMapper.toDto(userService.createUserAsAdmin(userCreateDto));
-        return ResponseEntity.status(HttpStatus.CREATED).body(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUserAsAdmin(userCreateDto));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN') or #id == authentication.principal.id")
     public ResponseEntity<UserDto>updateUser(@PathVariable Long id,@Valid @RequestBody UserUpdateDto updateDto){
         log.info("PUT /api/users/{} - Updating user", id);
-        UserDto user = userMapper.toDto(userService.updateUser(id,updateDto));
-        return  ResponseEntity.ok(user);
+        return  ResponseEntity.ok(userService.updateUser(id,updateDto));
     }
 
     @DeleteMapping("/{id}")

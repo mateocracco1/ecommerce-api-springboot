@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 @Entity
 @Table(name = "products")
-public class Product implements Serializable {
+public class Product {
 
 
     @Id
@@ -28,9 +28,6 @@ public class Product implements Serializable {
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
-
-    // control version
-    private static final long serialVersionUID = 1L;
 
     public Product() {
     }
