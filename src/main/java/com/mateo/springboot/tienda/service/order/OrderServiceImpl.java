@@ -55,8 +55,8 @@ public class OrderServiceImpl  implements OrderService {
 
 
     @Override
-    public List<OrderDto> findAllOrders() {
-        return orderRepository.findAll().stream().map(orderMapper::toDto).toList();
+    public Page<OrderDto> findAllOrders(Pageable pageable) {
+        return orderRepository.findAll(pageable).map(orderMapper::toDto);
     }
 
     @Override

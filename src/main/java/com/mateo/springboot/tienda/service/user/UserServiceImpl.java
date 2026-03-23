@@ -18,6 +18,8 @@ import com.mateo.springboot.tienda.models.Role;
 import com.mateo.springboot.tienda.models.User;
 import com.mateo.springboot.tienda.repository.UserRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -40,8 +42,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public List<UserDto> findAllUsers() {
-        return userRepository.findAll().stream().map(userMapper::toDto).toList();
+    public Page<UserDto> findAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toDto);
     }
 
     @Override

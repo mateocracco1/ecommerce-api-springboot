@@ -1,5 +1,6 @@
 package com.mateo.springboot.tienda.controller;
 
+import com.mateo.springboot.tienda.dto.pageDto.PageDto;
 import com.mateo.springboot.tienda.dto.product.ProductCreateDto;
 import com.mateo.springboot.tienda.dto.product.ProductDto;
 import com.mateo.springboot.tienda.dto.product.ProductUpdateDto;
@@ -9,6 +10,9 @@ import com.mateo.springboot.tienda.service.product.ProductService;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,8 +37,8 @@ public class ProductController {
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
-    public ResponseEntity<List<ProductDto>>getProducts(){
-        return  ResponseEntity.ok(productService.findAllProducts());
+    public ResponseEntity<PageDto<ProductDto>>getProducts(@PageableDefault(page = 0, size = 10) Pageable pageable){
+        return  ResponseEntity.ok(productService.findAllProducts(pageable));
     }
 
     @GetMapping("/{id}")

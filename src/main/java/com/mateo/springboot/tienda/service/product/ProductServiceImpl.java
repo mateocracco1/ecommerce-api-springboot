@@ -1,6 +1,7 @@
 package com.mateo.springboot.tienda.service.product;
 
 
+import com.mateo.springboot.tienda.dto.pageDto.PageDto;
 import com.mateo.springboot.tienda.dto.product.ProductCreateDto;
 import com.mateo.springboot.tienda.dto.product.ProductDto;
 import com.mateo.springboot.tienda.dto.product.ProductUpdateDto;
@@ -17,11 +18,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 
 
@@ -42,11 +45,31 @@ public class ProductServiceImpl implements  ProductService{
         this.categoryRepository = categoryRepository;
         this.productMapper = productMapper;
     }
+    //probar
 
-    @Cacheable(value = "product_list")
-    @Override
-    public List<ProductDto> findAllProducts() {
-        return productRepository.findAll().stream().map(productMapper::toDto).collect(Collectors.toList());
+    @Cacheable(
+            value = "product_list",
+            key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort.toString()"
+    )    @Override
+    public PageDto<ProductDto> findAllProducts(Pageable pageable) {
+        // 1. Buscamos en la BD (esto ya usa tu @EntityGraph)
+        Page<Product> productPage = productRepository.findAll(pageable);
+
+        // 2. Convertimos a DTOs
+        List<ProductDto> productDtos = productPage.getContent()
+                .stream()
+                .map(productMapper::toDto)
+                .toList();
+
+        // 3. Devolvemos nuestro objeto serializable
+        return new PageDto<>(
+                productDtos,
+                productPage.getNumber(),
+                productPage.getSize(),
+                productPage.getTotalElements(),
+                productPage.getTotalPages(),
+                productPage.isLast()
+        );
     }
 
     @Cacheable(value = "product_details", key = "#id")
@@ -228,8 +251,9 @@ public class ProductServiceImpl implements  ProductService{
     }
 
     @Override
-    public List<ProductDto> listLowStockProducts() {
-        return  productRepository.findByStockLessThanEqual(lowStockThreshold).stream().map(productMapper::toDto).toList();
+    public Page<ProductDto> listLowStockProducts(Pageable pageable) {
+        return productRepository.findByStockLessThanEqual(lowStockThreshold, pageable)
+                .map(productMapper::toDto);
     }
 
     @Override
