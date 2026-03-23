@@ -2,19 +2,22 @@ package com.mateo.springboot.tienda.repository;
 
 import com.mateo.springboot.tienda.models.Product;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+
 import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product,Long> {
 
-    List<Product> findByStockLessThanEqual(int threshold);
+    Page<Product> findByStockLessThanEqual(int threshold , Pageable pageable);
     boolean existsByName(String name);
 
 
@@ -22,6 +25,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> {
     @Query("SELECT p FROM Product p WHERE p.id = :id")
     Optional<Product> findByIdForUpdate(@Param("id") Long id);
 
-    @Query("SELECT p FROM Product p JOIN FETCH p.category")
-    List<Product> findAll();
+
+//    @Query("SELECT p FROM Product p JOIN FETCH p.category")
+    @EntityGraph(attributePaths = {"category"})
+    Page<Product> findAll(Pageable pageable);
 }

@@ -13,7 +13,7 @@ import java.util.List;
 public interface OrderService {
 
 
-    List<OrderDto>findAllOrders();
+    Page<OrderDto>findAllOrders(Pageable pageable);
     OrderDto findOrderById(Long orderId);
     OrderDto createOrder(OrderCreateDto dto, Long userId);
     void  deleteOrder(Long orderId);

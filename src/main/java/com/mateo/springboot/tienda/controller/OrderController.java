@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,8 +39,8 @@ public class OrderController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<OrderDto>>getOrders(){
-        return ResponseEntity.ok(orderService.findAllOrders());
+    public ResponseEntity<Page<OrderDto>>getOrders(@PageableDefault(size = 10, page = 0) Pageable pageable){
+        return ResponseEntity.ok(orderService.findAllOrders(pageable));
     }
 
     @GetMapping("/{id}")
