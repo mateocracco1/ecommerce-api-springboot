@@ -30,8 +30,8 @@ public class OrderDetail {
     public OrderDetail() {
     }
 
-    public OrderDetail(Long id, Product product, Order order, int quantity, BigDecimal unitPrice) {
-        this.id = id;
+    public OrderDetail( Product product, Order order, int quantity, BigDecimal unitPrice) {
+
         this.product = product;
         this.order = order;
         this.quantity = quantity;

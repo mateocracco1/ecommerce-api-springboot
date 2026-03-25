@@ -33,8 +33,7 @@ public class User {
     public User() {
     }
 
-    public User(Long id, String username, String email, String password, Role role, boolean enabled) {
-        this.id = id;
+    public User( String username, String email, String password, Role role, boolean enabled) {
         this.username = username;
         this.email = email;
         this.password = password;
