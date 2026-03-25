@@ -32,24 +32,20 @@ public class Product {
     public Product() {
     }
 
-    public Product(Long id, String name, BigDecimal price) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-    }
-
-    public Product(Long id, String name, String description, BigDecimal price, int stock) {
-        this.id = id;
+    public Product(String name, String description, BigDecimal price, int stock, Category category) {
         this.name = name;
         this.description = description;
         this.price = price;
         this.stock = stock;
+        this.category = category;
     }
 
-    //para test
-    public Product(long id, String keyboard, BigDecimal bigDecimal, int i, Category category) {
+    public Product(String name, BigDecimal price, int stock, Category category) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+        this.category = category;
     }
-
     public Long getId() {
         return id;
     }

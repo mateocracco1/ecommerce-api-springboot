@@ -33,8 +33,8 @@ public class Order {
     public Order() {
     }
 
-    public Order(Long id, User user, LocalDateTime date, BigDecimal total, OrderStatus status, List<OrderDetail> details) {
-        this.id = id;
+    public Order( User user, LocalDateTime date, BigDecimal total, OrderStatus status, List<OrderDetail> details) {
+
         this.user = user;
         this.date = date;
         this.total = total;
