@@ -90,7 +90,7 @@ public class OrderController {
 
     //Detalle de la Orden ver
 
-    @PutMapping("/cancel-Order/{id}")
+    @PutMapping("/orders/{id}/cancel")
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<OrderDto>cancelOrder(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user ) {
         return   ResponseEntity.ok(orderService.cancelOrder(id , user.getId()));

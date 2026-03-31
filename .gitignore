@@ -1,16 +1,37 @@
-# Contenido remoto
-HELP.md
-target/
-.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-# Contenido local
+#  Entorno
+
+.env
+.env.*
+!.env.example
+
+
+#  Compilados de Maven / Spring boot
+
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
 *.class
-*.log
 *.jar
 *.war
-.idea/
 build/
-.vscode/
+HELP.md
 
+
+
+#  Archivos de IDEs
+
+.idea/
+*.iml
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+
+#  Logs
+*.log
+.DS_Store
+Thumbs.db
