@@ -144,7 +144,7 @@ public class OrderServiceImpl  implements OrderService {
         Cart cart = cartService.getActiveCart(user);
 
         if (cart.getItems().isEmpty()) {
-            throw new RuntimeException("Cannot checkout an empty cart"); // Crear  excepción personalzida
+            throw new EmptyCartException();
         }
         Order order = new Order();
         order.setUser(user);

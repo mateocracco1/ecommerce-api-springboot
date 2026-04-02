@@ -45,23 +45,23 @@ public class ProductServiceImpl implements  ProductService{
         this.categoryRepository = categoryRepository;
         this.productMapper = productMapper;
     }
-    //probar
+
 
     @Cacheable(
             value = "product_list",
             key = "#pageable.pageNumber + '-' + #pageable.pageSize + '-' + #pageable.sort.toString()"
     )    @Override
     public PageDto<ProductDto> findAllProducts(Pageable pageable) {
-        // 1. Buscamos en la BD (esto ya usa tu @EntityGraph)
+
         Page<Product> productPage = productRepository.findAll(pageable);
 
-        // 2. Convertimos a DTOs
+
         List<ProductDto> productDtos = productPage.getContent()
                 .stream()
                 .map(productMapper::toDto)
                 .toList();
 
-        // 3. Devolvemos nuestro objeto serializable
+
         return new PageDto<>(
                 productDtos,
                 productPage.getNumber(),

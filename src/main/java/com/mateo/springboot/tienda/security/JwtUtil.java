@@ -28,8 +28,8 @@ public class JwtUtil {
     // Genera token
     public String generateToken(String email) {
         return Jwts.builder()
-                .setSubject(email)                 // Lo que guardamos dentro del token
-                .setIssuedAt(new Date())              // Cuando fue generado
+                .setSubject(email)
+                .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_MS)) // Expira en 1h
                 .signWith(SECRET_KEY, SignatureAlgorithm.HS256)
                 .compact();
