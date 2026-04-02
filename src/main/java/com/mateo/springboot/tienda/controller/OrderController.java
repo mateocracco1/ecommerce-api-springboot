@@ -88,7 +88,6 @@ public class OrderController {
         return ResponseEntity.ok(orderService.findOrdersByUserIdAndStatus(user.getId(), "COMPLETED", pageable));
     }
 
-    //Detalle de la Orden ver
 
     @PutMapping("/orders/{id}/cancel")
     @PreAuthorize("hasRole('CUSTOMER')")

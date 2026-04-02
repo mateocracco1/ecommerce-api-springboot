@@ -10,7 +10,6 @@ import jakarta.validation.constraints.NotNull;
 public class OrderCreateDto {
 
 
-    // iduser lo saco de jwt
 
 
     @NotEmpty(message = "Order must contain at least one product")

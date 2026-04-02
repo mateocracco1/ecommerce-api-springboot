@@ -35,8 +35,6 @@ public class UserController {
     }
 
 
-    //agregar para ver mis propios datos
-    //public User getMyInfo(@AuthenticationPrincipal Object principal)
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")

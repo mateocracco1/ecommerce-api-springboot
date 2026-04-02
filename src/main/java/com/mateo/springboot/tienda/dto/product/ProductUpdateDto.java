@@ -17,9 +17,9 @@ public class ProductUpdateDto {
     private BigDecimal price;
 
     @Min(value = 0, message = "Stock cannot be negative")
-    private Integer stock;       // Integer para poder distinguir null de 0
+    private Integer stock;
 
-    private Long categoryId;     // si quiere cambiar la categoría
+    private Long categoryId;
 
 
     public ProductUpdateDto() {
