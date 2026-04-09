@@ -35,8 +35,8 @@ public class ProductController {
         this.productMapper = productMapper;
     }
 
+    //publico
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN','CUSTOMER')")
     public ResponseEntity<PageDto<ProductDto>>getProducts(@PageableDefault(page = 0, size = 10) Pageable pageable){
         return  ResponseEntity.ok(productService.findAllProducts(pageable));
     }
